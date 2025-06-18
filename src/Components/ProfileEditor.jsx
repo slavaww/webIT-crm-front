@@ -1,5 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import UserProfileSection from './UserProfileSection';
+import ClientProfileSection from './ClientProfileSection';
+import EmergencyContactSection from './EmergencyContactSection';
+import PasswordSection from './PasswordSection';
 
 const isEmergencyContactFilled = (contact) => {
     if (!contact) return false;
@@ -33,33 +37,33 @@ export default function ProfileEditor({ clientId }) {
             return;
         }
 
-        axios.get(`/api/clients/${clientId}`, {
-            headers: { 'Authorization': `Bearer ${authToken}` }
-        })
-        .then(response => {
-            setProfile(response.data);
-            const emrgContact = response.data.client_emrg;
-            // Проверяем, есть ли данные, и решаем, показывать ли форму
-            if (isEmergencyContactFilled(emrgContact)) {
-                setEmergencyContact(emrgContact);
-                setIsEmergencyFormVisible(true); // Показываем форму, так как есть данные
+        setLoading(true);
+
+        Promise.all([
+            axios.get(`/api/clients/${clientId}`, { headers: { Authorization: `Bearer ${authToken}` } }),
+            axios.get('/api/me', { headers: { Authorization: `Bearer ${authToken}` } })
+        ])
+        .then(([clientResponse, meResponse]) => {
+            // Обрабатываем ответ от /api/clients/{id}
+            const clientData = clientResponse.data;
+            setProfile(clientData);
+            if (isEmergencyContactFilled(clientData.client_emrg)) {
+                setEmergencyContact(clientData.client_emrg);
+                setIsEmergencyFormVisible(true);
             }
-            setLoading(false);
+
+            // Обрабатываем ответ от /api/me
+            setUser(meResponse.data);
         })
         .catch(err => {
             setError('Не удалось загрузить данные профиля.');
+            console.error(err);
+        })
+        .finally(() => {
+            // Сбрасываем загрузку в false
             setLoading(false);
         });
     }, [clientId, authToken]);
-
-    useEffect(() => {
-        axios.get('/api/me', { headers: { Authorization: `Bearer ${authToken}` } })
-            .then(response => {
-                setUser(response.data);
-                setLoading(false);
-            })
-            .catch(() => setError('Не удалось загрузить данные профиля.'));
-    }, [authToken]);
 
     // Обработчик для полей профиля клиента
     const handleChangeProfile = (e) => {
@@ -125,18 +129,13 @@ export default function ProfileEditor({ clientId }) {
                 }
             })
         );
+        // 2. Запрос на обновление данных клиента - user'a
         let userData = {
             name: user.name,
             surname: user.surname,
-            patronymic: user.patronymic
+            patronymic: user.patronymic,
+            ...(newPassword && { password: newPassword })
         };
-        
-        // 2. Запрос на смену пароля (отправляется, только если поле пароля не пустое)
-        if (newPassword) {
-            userData.password = newPassword;
-        }
-
-        // 3. Запрос на обновление данных клиента - user'a
         requests.push(
             axios.patch('/api/me', userData, {
                 headers: {
@@ -165,94 +164,27 @@ export default function ProfileEditor({ clientId }) {
 
     return (
         <div className="container mt-4">
-            <h2>Редактирование профиля клиента</h2>
+            <h2>Редактирование профиля</h2>
             {error && <div className="alert alert-danger">{error}</div>}
             {success && <div className="alert alert-success">{success}</div>}
             
             <form onSubmit={handleSubmit}>
-                <div className="mb-3">
-                    <label htmlFor="title" className="form-label">Название клиента (ФИО или компания)</label>
-                    <input type="text" className="form-control" id="title" name="title" value={profile.title} onChange={handleChangeProfile} />
-                </div>
-                <div className="mb-3">
-                    <label htmlFor="name" className="form-label">Имя</label>
-                    <input type="text" className="form-control" id="name" name="name" value={user.name || ''} onChange={handleChangeUser} />
-                </div>
-                <div className="mb-3">
-                    <label htmlFor="patronymic" className="form-label">Отчество</label>
-                    <input type="text" className="form-control" id="patronymic" name="patronymic" value={user.patronymic || ''} onChange={handleChangeUser} />
-                </div>
-                <div className="mb-3">
-                    <label htmlFor="surname" className="form-label">Фамилия</label>
-                    <input type="text" className="form-control" id="surname" name="surname" value={user.surname || ''} onChange={handleChangeUser} />
-                </div>
-                <div className="mb-3">
-                    <label htmlFor="job_title" className="form-label">Должность</label>
-                    <input type="text" className="form-control" id="job_title" name="job_title" value={profile.job_title || ''} onChange={handleChangeProfile} />
-                </div>
-                <div className="mb-3">
-                    <label htmlFor="email" className="form-label">Контактный Email</label>
-                    <input type="email" className="form-control" id="email" name="email" value={profile.email || ''} onChange={handleChangeProfile} />
-                </div>
-                <div className="mb-3">
-                    <label htmlFor="phone" className="form-label">Телефон</label>
-                    <input type="text" className="form-control" id="phone" name="phone" value={profile.phone || ''} onChange={handleChangeProfile} />
-                </div>
-                <div className="mb-3">
-                    <label htmlFor="description" className="form-label">Описание</label>
-                    <textarea className="form-control" id="description" name="description" value={profile.description || ''} onChange={handleChangeProfile} rows="3"></textarea>
-                </div>
+                <ClientProfileSection profile={profile} onChange={handleChangeProfile} />
+                {/* Данные пользователя (ФИО) */}
+                <UserProfileSection user={user} onChange={handleChangeUser} />
 
-                {/* РАЗДЕЛ ДЛЯ ЭКСТРЕННОГО КОНТАКТА */}
-                <div className="emergency-contact-section">
-                    <legend className="h5">Экстренный контакт</legend>
-                    
-                    {isEmergencyFormVisible ? (
-                        // Если форма видима, показываем поля и кнопку "Удалить"
-                        <fieldset>
-                            <p className="text-muted small">Заполните, если хотите указать заместителя. Чтобы удалить, очистите все поля и сохраните, или нажмите кнопку "Удалить".</p>
-                            <div className="mb-3">
-                                <label htmlFor="emrg_title" className="form-label">ФИО контакта</label>
-                                <input type="text" className="form-control" id="emrg_title" name="title" value={emergencyContact.title || ''} onChange={handleChangeEmergency} />
-                            </div>
-                            <div className="mb-3">
-                                <label htmlFor="emrg_job_title" className="form-label">Должность</label>
-                                <input type="text" className="form-control" id="emrg_job_title" name="job_title" value={emergencyContact.job_title || ''} onChange={handleChangeEmergency} />
-                            </div>
-                            <div className="mb-3">
-                                <label htmlFor="emrg_email" className="form-label">Email</label>
-                                <input type="email" className="form-control" id="emrg_email" name="email" value={emergencyContact.email || ''} onChange={handleChangeEmergency} />
-                            </div>
-                            <div className="mb-3">
-                                <label htmlFor="emrg_phone" className="form-label">Телефон</label>
-                                <input type="text" className="form-control" id="emrg_phone" name="phone" value={emergencyContact.phone || ''} onChange={handleChangeEmergency} />
-                            </div>
-                            <button type="button" onClick={handleDeleteEmergencyContact} className="btn btn-sm btn-outline-danger">
-                                Удалить доп. контакт
-                            </button>
-                        </fieldset>
-                    ) : (
-                        // Если форма скрыта, показываем кнопку "Добавить"
-                        <button type="button" onClick={() => setIsEmergencyFormVisible(true)} className="btn btn-secondary">
-                            Добавить дополнительный контакт
-                        </button>
-                    )}
-                </div>
+                <EmergencyContactSection
+                    contactData={emergencyContact}
+                    isVisible={isEmergencyFormVisible}
+                    onChange={handleChangeEmergency}
+                    onShow={() => setIsEmergencyFormVisible(true)}
+                    onDelete={handleDeleteEmergencyContact}
+                />
 
                 {/* ДОБАВЛЕННОЕ ПОЛЕ ПАРОЛЯ */}
                 <hr className="my-4" />
-                <div className="mb-3">
-                    <label htmlFor="password" className="form-label fw-bold">Новый пароль</label>
-                    <input 
-                        type="password" 
-                        className="form-control" 
-                        id="password" 
-                        name="password" 
-                        value={newPassword} 
-                        onChange={handleChangePassword} 
-                        placeholder="Оставьте пустым, если не хотите менять" 
-                    />
-                </div>
+
+                <PasswordSection password={newPassword} onChange={handleChangePassword} />
 
                 <button type="submit" className="btn btn-primary" disabled={loading}>
                     {loading ? 'Сохранение...' : 'Сохранить изменения'}
