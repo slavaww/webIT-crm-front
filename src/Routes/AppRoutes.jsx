@@ -9,6 +9,7 @@ import ProtectedRoute from './ProtectedRoute';
 const HomePage = React.lazy(() => import('../Pages/HomePage'));
 const ProfilePage = React.lazy(() => import('../Pages/ProfilePage'));
 const LoginPage = React.lazy(() => import('../Pages/LoginPage'));
+const EmployeeProfilePage = React.lazy(() => import('../Pages/EmployeeProfilePage'));
 
 const LoadingSpinner = () => <div className="spinner-border" role="status"><span className="visually-hidden">Loading...</span></div>;
 
@@ -21,6 +22,7 @@ const AppRoutes = () => {
           <Route path="/" element={<MainLayout />}> {/* <-- Теперь здесь просто "/" */}
             <Route index element={<HomePage />} />
             <Route path="profile" element={<ProfilePage />} />
+            <Route path="employee/profile" element={<EmployeeProfilePage />} />
           </Route>
         </Route>
         

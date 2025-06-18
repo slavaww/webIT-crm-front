@@ -1,10 +1,12 @@
 import React from 'react';
 import { Link, Outlet, useNavigate } from 'react-router-dom';
-import '../assets/scss/crm.scss';
 import axios from 'axios';
+import '../assets/scss/crm.scss';
+import { getUserDataFromToken } from '../utils/authUtils';
 
 const MainLayout = () => {
   const navigate = useNavigate();
+  const userData = getUserDataFromToken();
 
   const handleLogout = async () => {
     try {
@@ -22,6 +24,30 @@ const MainLayout = () => {
     }
   };
 
+  const renderProfileLink = () => {
+    if (!userData || !userData.roles) {
+      // Не показывать ссылку, если пользователь не аутентифицирован
+      return null;
+    }
+
+    // Если это СУПЕР-АДМИН, ссылка ведет на /settings (вне SPA)
+    if (userData.roles.includes('ROLE_SUPER_ADMIN')) {
+      return <a href="/settings" className="nav-link">Профиль</a>;
+    }
+
+    // Если это СОТРУДНИК, ссылка ведет на его кабинет в SPA
+    if (userData.roles.includes('ROLE_ADMIN')) {
+      return <Link className="nav-link" to="/employee/profile">Профиль</Link>;
+    }
+
+    // Если это КЛИЕНТ (по наличию clientId)
+    if (userData.clientId) {
+      return <Link className="nav-link" to="/profile">Профиль</Link>;
+    }
+
+    return null; // По умолчанию ничего не показываем
+  };
+
   return (
     <div className="container py-3">
       <header>
@@ -31,7 +57,7 @@ const MainLayout = () => {
         </div>
         <nav className="nav">
           <Link className="nav-link" to="/">Главная</Link>
-          <Link className="nav-link" to="/profile">Профиль</Link>
+          {renderProfileLink()}
         </nav>
       </header>
       
