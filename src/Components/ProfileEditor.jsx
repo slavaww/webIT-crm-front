@@ -1,12 +1,25 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 
+const isEmergencyContactFilled = (contact) => {
+    if (!contact) return false;
+    // Считаем контакт заполненным, если хотя бы одно из его полей не пустое
+    return Object.values(contact).some(field => field && String(field).trim() !== '');
+};
+
 // Название компонента оставляем прежним, так как он редактирует профиль клиента
 export default function ProfileEditor({ clientId }) {
     const [profile, setProfile] = useState(null);
     const [user, setUser] = useState(null);
     // Добавляем отдельное состояние для нового пароля
     const [newPassword, setNewPassword] = useState('');
+    const [emergencyContact, setEmergencyContact] = useState({
+        title: '',
+        job_title: '',
+        phone: '',
+        email: ''
+    });
+    const [isEmergencyFormVisible, setIsEmergencyFormVisible] = useState(false);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [success, setSuccess] = useState(null);
@@ -25,6 +38,12 @@ export default function ProfileEditor({ clientId }) {
         })
         .then(response => {
             setProfile(response.data);
+            const emrgContact = response.data.client_emrg;
+            // Проверяем, есть ли данные, и решаем, показывать ли форму
+            if (isEmergencyContactFilled(emrgContact)) {
+                setEmergencyContact(emrgContact);
+                setIsEmergencyFormVisible(true); // Показываем форму, так как есть данные
+            }
             setLoading(false);
         })
         .catch(err => {
@@ -50,6 +69,18 @@ export default function ProfileEditor({ clientId }) {
             [name]: value
         }));
     };
+    const handleChangeEmergency = (e) => {
+        const { name, value } = e.target;
+        setEmergencyContact(prev => ({ ...prev, [name]: value }));
+    };
+    const handleDeleteEmergencyContact = () => {
+        // Сбрасываем данные контакта до пустых значений
+        setEmergencyContact({ title: '', job_title: '', phone: '', email: '' });
+        // Скрываем форму
+        setIsEmergencyFormVisible(false);
+        // Примечание: фактическое удаление произойдет при нажатии "Сохранить изменения",
+        // так как в запрос будет отправлен `client_emrg: null`.
+    };
     // Обработчик для полей профиля клиента - user'a
     const handleChangeUser = (e) => {
         const { name, value } = e.target;
@@ -74,13 +105,17 @@ export default function ProfileEditor({ clientId }) {
         // Создаем массив запросов, которые нужно выполнить
         const requests = [];
 
+        // Проверяем, нужно ли сохранять экстренный контакт
+        const isEmergencyContactFilled = Object.values(emergencyContact).some(field => field && field.trim() !== '');
+
         // 1. Запрос на обновление данных клиента
         const clientData = {
             title: profile.title,
             description: profile.description,
             job_title: profile.job_title,
             phone: profile.phone,
-            email: profile.email
+            email: profile.email,
+            client_emrg: isEmergencyContactFilled ? emergencyContact : null
         };
         requests.push(
             axios.patch(`/api/clients/${clientId}`, clientData, {
@@ -166,6 +201,42 @@ export default function ProfileEditor({ clientId }) {
                 <div className="mb-3">
                     <label htmlFor="description" className="form-label">Описание</label>
                     <textarea className="form-control" id="description" name="description" value={profile.description || ''} onChange={handleChangeProfile} rows="3"></textarea>
+                </div>
+
+                {/* РАЗДЕЛ ДЛЯ ЭКСТРЕННОГО КОНТАКТА */}
+                <div className="emergency-contact-section">
+                    <legend className="h5">Экстренный контакт</legend>
+                    
+                    {isEmergencyFormVisible ? (
+                        // Если форма видима, показываем поля и кнопку "Удалить"
+                        <fieldset>
+                            <p className="text-muted small">Заполните, если хотите указать заместителя. Чтобы удалить, очистите все поля и сохраните, или нажмите кнопку "Удалить".</p>
+                            <div className="mb-3">
+                                <label htmlFor="emrg_title" className="form-label">ФИО контакта</label>
+                                <input type="text" className="form-control" id="emrg_title" name="title" value={emergencyContact.title || ''} onChange={handleChangeEmergency} />
+                            </div>
+                            <div className="mb-3">
+                                <label htmlFor="emrg_job_title" className="form-label">Должность</label>
+                                <input type="text" className="form-control" id="emrg_job_title" name="job_title" value={emergencyContact.job_title || ''} onChange={handleChangeEmergency} />
+                            </div>
+                            <div className="mb-3">
+                                <label htmlFor="emrg_email" className="form-label">Email</label>
+                                <input type="email" className="form-control" id="emrg_email" name="email" value={emergencyContact.email || ''} onChange={handleChangeEmergency} />
+                            </div>
+                            <div className="mb-3">
+                                <label htmlFor="emrg_phone" className="form-label">Телефон</label>
+                                <input type="text" className="form-control" id="emrg_phone" name="phone" value={emergencyContact.phone || ''} onChange={handleChangeEmergency} />
+                            </div>
+                            <button type="button" onClick={handleDeleteEmergencyContact} className="btn btn-sm btn-outline-danger">
+                                Удалить доп. контакт
+                            </button>
+                        </fieldset>
+                    ) : (
+                        // Если форма скрыта, показываем кнопку "Добавить"
+                        <button type="button" onClick={() => setIsEmergencyFormVisible(true)} className="btn btn-secondary">
+                            Добавить дополнительный контакт
+                        </button>
+                    )}
                 </div>
 
                 {/* ДОБАВЛЕННОЕ ПОЛЕ ПАРОЛЯ */}
