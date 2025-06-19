@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import apiClient from '../api/axiosConfig';
 
 const EmployeeProfilePage = () => {
     const [user, setUser] = useState(null);
@@ -10,7 +10,7 @@ const EmployeeProfilePage = () => {
     const authToken = localStorage.getItem('authToken');
 
     useEffect(() => {
-        axios.get('/api/me', { headers: { Authorization: `Bearer ${authToken}` } })
+        apiClient.get('/me', { headers: { Authorization: `Bearer ${authToken}` } })
             .then(response => {
                 setUser(response.data);
                 setLoading(false);
@@ -28,7 +28,7 @@ const EmployeeProfilePage = () => {
             Object.entries(formData).filter(([, value]) => value !== '')
         );
 
-        axios.patch('/api/me', dataToUpdate, {
+        apiClient.patch('/me', dataToUpdate, {
             headers: {
                 Authorization: `Bearer ${authToken}`,
                 'Content-Type': 'application/merge-patch+json',

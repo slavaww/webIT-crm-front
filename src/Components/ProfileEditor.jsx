@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import apiClient from '../api/axiosConfig';
 import UserProfileSection from './UserProfileSection';
 import ClientProfileSection from './ClientProfileSection';
 import EmergencyContactSection from './EmergencyContactSection';
@@ -40,8 +40,8 @@ export default function ProfileEditor({ clientId }) {
         setLoading(true);
 
         Promise.all([
-            axios.get(`/api/clients/${clientId}`, { headers: { Authorization: `Bearer ${authToken}` } }),
-            axios.get('/api/me', { headers: { Authorization: `Bearer ${authToken}` } })
+            apiClient.get(`/clients/${clientId}`, { headers: { Authorization: `Bearer ${authToken}` } }),
+            apiClient.get('/me', { headers: { Authorization: `Bearer ${authToken}` } })
         ])
         .then(([clientResponse, meResponse]) => {
             // Обрабатываем ответ от /api/clients/{id}
@@ -122,7 +122,7 @@ export default function ProfileEditor({ clientId }) {
             client_emrg: isEmergencyContactFilled ? emergencyContact : null
         };
         requests.push(
-            axios.patch(`/api/clients/${clientId}`, clientData, {
+            apiClient.patch(`/clients/${clientId}`, clientData, {
                 headers: {
                     'Authorization': `Bearer ${authToken}`,
                     'Content-Type': 'application/merge-patch+json'
@@ -137,7 +137,7 @@ export default function ProfileEditor({ clientId }) {
             ...(newPassword && { password: newPassword })
         };
         requests.push(
-            axios.patch('/api/me', userData, {
+            apiClient.patch('/me', userData, {
                 headers: {
                     'Authorization': `Bearer ${authToken}`,
                     'Content-Type': 'application/merge-patch+json'
