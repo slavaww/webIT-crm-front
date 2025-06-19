@@ -32,7 +32,7 @@ const MainLayout = () => {
 
     // Если это СУПЕР-АДМИН, ссылка ведет на /settings (вне SPA)
     if (userData.roles.includes('ROLE_SUPER_ADMIN')) {
-      return <a href="/settings" className="nav-link">Профиль</a>;
+      return <><Link className="nav-link" to="/employee/profile">Профиль</Link><a href="/settings" className="nav-link">Настройки</a></>;
     }
 
     // Если это СОТРУДНИК, ссылка ведет на его кабинет в SPA
