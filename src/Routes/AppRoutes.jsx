@@ -17,9 +17,9 @@ const AppRoutes = () => {
   return (
     <Suspense fallback={<LoadingSpinner />}>
       <Routes>
-        {/* Роуты, требующие токен. Outlet будет внутри MainLayout */}
+        {/* Роуты, требующие токен. Outlet внутри MainLayout */}
         <Route element={<ProtectedRoute />}>
-          <Route path="/" element={<MainLayout />}> {/* <-- Теперь здесь просто "/" */}
+          <Route path="/" element={<MainLayout />}>
             <Route index element={<HomePage />} />
             <Route path="profile" element={<ProfilePage />} />
             <Route path="employee/profile" element={<EmployeeProfilePage />} />
@@ -27,7 +27,7 @@ const AppRoutes = () => {
         </Route>
         
         {/* Публичный роут для страницы входа */}
-        <Route path="/login" element={<LoginPage />} /> {/* <-- И здесь просто "/login" */}
+        <Route path="/login" element={<LoginPage />} />
       </Routes>
     </Suspense>
   );
