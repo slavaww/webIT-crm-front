@@ -36,9 +36,6 @@ const EmployeeProfilePage = () => {
             });
     }, []);
 
-    console.log('userData:', userData);
-    console.log('formData:', formData);
-
     const handleChange = (e) => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
     };
