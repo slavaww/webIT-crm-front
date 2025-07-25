@@ -101,7 +101,7 @@ const TaskDetail = () => {
           </Card.Text>
         </Card.Body>
       </Card>
-{/* key={comment.id} */}
+
       <h3 className="mt-4">Комментарии</h3>
       {comments.map((comment) => (
         <ListGroup className="mb-3" key={comment.id}>
@@ -110,6 +110,7 @@ const TaskDetail = () => {
             <strong>
               {comment.author?.name} {comment.author?.surname}
             </strong>
+              {" ("}{comment.author?.employee?.job_title || comment.author?.client?.title}{")"}
           </ListGroup.Item>
           <ListGroup.Item>
             {comment.description}
