@@ -3,6 +3,8 @@ import { useParams } from "react-router-dom";
 import apiClient from "../api/axiosConfig";
 import { Card, ListGroup, Form, Button } from "react-bootstrap";
 import { formatTaskDate } from "../utils/dateFormat";
+import MDEditor from "@uiw/react-md-editor";
+import ImageUploadButton from "../Components/ImageUploadButton";
 
 const TaskDetail = () => {
   const { id } = useParams(); // Получаем ID задачи из URL
@@ -55,10 +57,24 @@ const TaskDetail = () => {
     }
   };
 
+  const handleImageUpload = async (file) => {
+    const formData = new FormData();
+    formData.append("image", file);
+
+    try {
+      const response = await apiClient.post("/images/upload", formData, {
+        headers: { "Content-Type": "multipart/form-data" },
+      });
+      return response.data.url;
+    } catch (err) {
+      console.error("Ошибка загрузки:", err);
+      return null;
+    }
+  };
+
   if (loading) return <div>Загрузка...</div>;
   if (error) return <div className="alert alert-danger">{error}</div>;
   if (!task) return <div>Задача не найдена.</div>;
-  
 
   return (
     <div className="container mt-4">
@@ -96,8 +112,10 @@ const TaskDetail = () => {
           </Card.Text>
           <Card.Text>
             <strong>Исполнитель:</strong> {task.worker?.user_id?.name}{" "}
-            {task.worker?.user_id?.surname}{" ("}
-            {task.worker?.job_title}{")"}
+            {task.worker?.user_id?.surname}
+            {" ("}
+            {task.worker?.job_title}
+            {")"}
           </Card.Text>
         </Card.Body>
       </Card>
@@ -106,14 +124,19 @@ const TaskDetail = () => {
       {comments.map((comment) => (
         <ListGroup className="mb-3" key={comment.id}>
           <ListGroup.Item>
-            {formatTaskDate(comment.created_at)}{" - "}
+            {formatTaskDate(comment.created_at)}
+            {" - "}
             <strong>
               {comment.author?.name} {comment.author?.surname}
             </strong>
-              {" ("}{comment.author?.employee?.job_title || comment.author?.client?.title}{")"}
+            {" ("}
+            {comment.author?.employee?.job_title ||
+              comment.author?.client?.title}
+            {")"}
           </ListGroup.Item>
           <ListGroup.Item>
-            {comment.description}
+            {/* {comment.description} */}
+            <MDEditor.Markdown source={comment.description} />
           </ListGroup.Item>
         </ListGroup>
       ))}
@@ -121,11 +144,16 @@ const TaskDetail = () => {
 
       <Form.Group className="mb-3">
         <Form.Label>Добавить комментарий</Form.Label>
-        <Form.Control
-          as="textarea"
+        <div className="mb-2">
+          <ImageUploadButton 
+            onImageUpload={handleImageUpload}
+            onInsert={(markdown) => setNewComment(prev => prev + '\n' + markdown)}
+            />
+        </div>
+        <MDEditor
           value={newComment}
-          onChange={(e) => setNewComment(e.target.value)}
-          rows={3}
+          onChange={setNewComment}
+          height={200}
         />
       </Form.Group>
       <Button variant="primary" onClick={handleAddComment}>
