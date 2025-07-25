@@ -10,6 +10,7 @@ const HomePage = React.lazy(() => import('../Pages/HomePage'));
 const ProfilePage = React.lazy(() => import('../Pages/ProfilePage'));
 const LoginPage = React.lazy(() => import('../Pages/LoginPage'));
 const EmployeeProfilePage = React.lazy(() => import('../Pages/EmployeeProfilePage'));
+const TaskDetailPage = React.lazy(() => import('../Pages/TaskDetailPage'));
 
 const LoadingSpinner = () => <div className="spinner-border" role="status"><span className="visually-hidden">Loading...</span></div>;
 
@@ -22,6 +23,7 @@ const AppRoutes = () => {
           <Route path="/" element={<MainLayout />}>
             <Route index element={<HomePage />} />
             <Route path="profile" element={<ProfilePage />} />
+            <Route path="/tasks/:id" element={<TaskDetailPage />} />
             <Route path="employee/profile" element={<EmployeeProfilePage />} />
           </Route>
         </Route>

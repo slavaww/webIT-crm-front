@@ -1,25 +1,19 @@
 import React from 'react';
 import { Button } from 'react-bootstrap';
-
-function formatTaskDate(dateString, fallback = '') {
-  if (!dateString) return fallback;
-  try {
-    return new Date(dateString).toLocaleDateString();
-  } catch {
-    return fallback;
-  }
-}
+import { Link } from 'react-router-dom';
+import { formatTaskDate } from '../utils/dateFormat';
 
 const TaskList = ({ tasks, clients, statuses, employees, isRole, onEdit, onDelete }) => {
   if (tasks.length === 0) return <div className="mt-3 alert alert-danger">Нет задач для отображения.</div>;
 
-  const br = '<br />';
 
   return (
     <table className="table table-striped mt-3">
       <thead>
         <tr>
-          {(isRole.admin || isRole.superAdmin) && <th>Клиент</th>}
+          {(isRole.admin || isRole.superAdmin) && 
+          <th>Клиент</th>}
+          <th>Создатель</th>
           <th>Название</th>
           <th>Дата создания</th> 
           <th>Дата начала<br />Дата окончания</th>
@@ -32,9 +26,10 @@ const TaskList = ({ tasks, clients, statuses, employees, isRole, onEdit, onDelet
         {tasks.map(task => (
           <tr key={task.id}>
             {(isRole.admin || isRole.superAdmin) && (
-              <td>{clients.find(s => s["@id"] === task.client)?.title || 'Внутренняя задача'}</td>
+              <td>{task.client?.title || 'Внутренняя задача'}</td>
             )}
-            <td>{task.title}</td>
+            <td>{task.creator?.name} {task.creator?.surname}</td>
+            <td><Link to={`/tasks/${task.id}`}>{task.title}</Link></td>
             <td>{formatTaskDate(task.create_date)}</td>
             <td> 
                 {task.start_time
@@ -46,13 +41,13 @@ const TaskList = ({ tasks, clients, statuses, employees, isRole, onEdit, onDelet
                     : 'Не начата'
                 }
             </td>
-            <td>{statuses.find(s => s["@id"] === task.status)?.status || 'Не указан'}</td>
+            <td>{task.status?.status || 'Не указан'}</td>
             {(isRole.client || isRole.superAdmin) && (
               <td>
                 {(() => {
-                  const employee = employees.find(s => s["@id"] === task.worker);
-                  if (!employee?.user_id) return 'Не назначен';
-                  return `${employee.user_id.name} ${employee.user_id.surname}`;
+                  const employee = task.worker?.user_id;
+                  if (!employee) return 'Не назначен';
+                  return `${employee.name} ${employee.surname}`;
                 })()}
               </td>
             )}
