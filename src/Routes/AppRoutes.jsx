@@ -8,6 +8,7 @@ import ProtectedRoute from './ProtectedRoute';
 // Ленивая загрузка страниц
 const HomePage = React.lazy(() => import('../Pages/HomePage'));
 const ProfilePage = React.lazy(() => import('../Pages/ProfilePage'));
+const NewTaskPage = React.lazy(() => import('../Pages/NewTaskPage'));
 const LoginPage = React.lazy(() => import('../Pages/LoginPage'));
 const EmployeeProfilePage = React.lazy(() => import('../Pages/EmployeeProfilePage'));
 const TaskDetailPage = React.lazy(() => import('../Pages/TaskDetailPage'));
@@ -23,6 +24,7 @@ const AppRoutes = () => {
           <Route path="/" element={<MainLayout />}>
             <Route index element={<HomePage />} />
             <Route path="profile" element={<ProfilePage />} />
+            <Route path="newtask" element={<NewTaskPage />} />
             <Route path="/tasks/:id" element={<TaskDetailPage />} />
             <Route path="employee/profile" element={<EmployeeProfilePage />} />
           </Route>

@@ -4,6 +4,7 @@ import UserProfileSection from './UserProfileSection';
 import ClientProfileSection from './ClientProfileSection';
 import EmergencyContactSection from './EmergencyContactSection';
 import PasswordSection from './PasswordSection';
+import AutoDismissAlert from './AutoDismissAlert';
 
 const isEmergencyContactFilled = (contact) => {
     if (!contact) return false;
@@ -166,7 +167,6 @@ export default function ProfileEditor({ clientId }) {
         <div className="container mt-4">
             <h2>Редактирование профиля</h2>
             {error && <div className="alert alert-danger">{error}</div>}
-            {success && <div className="alert alert-success">{success}</div>}
             
             <form onSubmit={handleSubmit}>
                 <ClientProfileSection profile={profile} onChange={handleChangeProfile} />
@@ -186,6 +186,11 @@ export default function ProfileEditor({ clientId }) {
 
                 <PasswordSection password={newPassword} onChange={handleChangePassword} />
 
+                <AutoDismissAlert 
+                    message={success} 
+                    type="success" 
+                    onDismiss={() => setSuccess(null)} 
+                />
                 <button type="submit" className="btn btn-primary" disabled={loading}>
                     {loading ? 'Сохранение...' : 'Сохранить изменения'}
                 </button>

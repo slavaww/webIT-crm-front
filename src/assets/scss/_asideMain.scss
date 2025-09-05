@@ -1,0 +1,83 @@
+.aside {
+
+    &-nav {
+        background-color: $frameLeft;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 80px;
+        height: 100dvh;
+
+        &-item {
+            height: 120px;
+            
+            &:hover {
+                background-color: $accentFrameColor;
+            }
+            
+            // &:has(.active) {
+            //     display: grid;
+            //     grid-template-columns: 5px 1fr;
+            //     grid-template-rows: 1fr;
+            // }
+        }
+        
+        &-link {
+            width: 100%;
+            height: 100%;
+            display: block;
+            text-align: center;
+            background-position: center;
+            background-repeat: no-repeat;
+            border-bottom: 1px solid $colorLine;
+            
+            &.tasks {
+                background-image: url('../images/hamburg.svg');
+            }
+            &.task {
+                background-image: url('../images/newtask.svg');
+            }
+            &.profile {
+                background-image: url('../images/profile.svg');
+
+                &.scrolled {
+                    border-top: 1px solid $colorLine;
+                }
+            }
+            &.settings {
+                background-image: url('../images/settings.svg');
+            }
+            &.logout {
+                background-image: url('../images/logout.svg');
+                background-color: $frameLeft;
+                border: none;
+                border-bottom: 1px solid $colorLine;
+                
+                &:hover {
+                    background-color: $accentFrameColor;
+                }
+            }
+            
+            &.active {
+                border-left: 5px solid $switchOn;
+                background-color: $accentFrameColor;
+            }
+        }
+    }
+    
+    &-brand {
+        width: 100%;
+        height: 120px;
+        background-image: url('../images/logo.svg');
+        background-position: center;
+        background-repeat: no-repeat;
+        border-bottom: 1px solid $colorLine;
+        transition: height 0.3s ease, margin-bottom 0.3s ease;
+
+        &.scrolled {
+            height: 80px;
+            margin-bottom: 40px;
+            border-bottom: none;
+        }
+    }
+}

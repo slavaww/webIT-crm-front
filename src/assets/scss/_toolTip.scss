@@ -1,0 +1,32 @@
+/* Родительский элемент (ссылка) */
+a[data-tooltip], button[data-tooltip] {
+    position: relative; /* Позволяет позиционировать подсказку относительно ссылки */
+    display: inline-block; /* Чтобы позиционирование было корректным */
+    text-decoration: underline;
+    color: blue;
+    cursor: pointer; /* Указывает на интерактивность */
+}
+
+/* Псевдоэлемент ::after для создания подсказки */
+a[data-tooltip]::after, button[data-tooltip]::after {
+    content: attr(data-tooltip); /* Получаем текст из атрибута data-tooltip */
+    position: absolute; /* Позиционируем подсказку абсолютно */
+    top: 50%;
+    left: 120%;
+    transform: translateY(-50%);
+    visibility: hidden; /* Скрываем по умолчанию */
+    opacity: 0; /* Скрываем полностью */
+    background-color: #333; /* Цвет фона */
+    color: #fff; /* Цвет текста */
+    padding: 5px 10px; /* Отступы внутри подсказки */
+    border-radius: 4px; /* Скругленные углы */
+    white-space: nowrap; /* Не переносить текст по словам */
+    pointer-events: none; /* Отключаем события мыши для псевдоэлемента */
+    transition: opacity 0.3s; /* Плавное появление */
+}
+
+/* Отображение подсказки при наведении на ссылку */
+a[data-tooltip]:hover::after, button[data-tooltip]:hover::after {
+    visibility: visible; /* Делаем видимой */
+    opacity: 1; /* Показываем полностью */
+}

@@ -1,8 +1,9 @@
-import React from 'react';
-import { Link, Outlet, useNavigate } from 'react-router-dom';
+import React, { useEffect, useState } from 'react';
+import { NavLink, Outlet, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import '../assets/scss/crm.scss';
 import { getUserDataFromToken } from '../utils/authUtils';
+import renderHeader from '../Components/RenderHeader';
 
 const MainLayout = () => {
   const navigate = useNavigate();
@@ -24,6 +25,21 @@ const MainLayout = () => {
     }
   };
 
+  const [isScrolled, setIsScrolled] = useState(false);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setIsScrolled(window.scrollY > 50);
+    };
+
+    window.addEventListener('scroll', handleScroll);
+    
+    // Очистка события при размонтировании компонента
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+    };
+  }, []);
+
   const renderProfileLink = () => {
     if (!userData || !userData.roles) {
       // Не показывать ссылку, если пользователь не аутентифицирован
@@ -32,43 +48,94 @@ const MainLayout = () => {
 
     // Если это СУПЕР-АДМИН, ссылка ведет на /settings (вне SPA)
     if (userData.roles.includes('ROLE_SUPER_ADMIN')) {
-      return <><Link className="nav-link" to="/employee/profile">Профиль</Link><a href="/settings" className="nav-link">Настройки</a></>;
+      return (
+        <>
+          <div className="aside-nav-item">
+            <NavLink
+              className={`aside-nav-link profile ${isScrolled ? 'scrolled' : ''}`}
+              to="/employee/profile"
+              data-tooltip="Профиль"
+            ></NavLink>
+          </div>
+          <div className="aside-nav-item">
+            <a href="/settings" className="aside-nav-link settings" data-tooltip="Настройки"></a>
+          </div>
+        </>
+      );
     }
 
     // Если это СОТРУДНИК, ссылка ведет на его кабинет в SPA
     if (userData.roles.includes('ROLE_ADMIN')) {
-      return <Link className="nav-link" to="/employee/profile">Профиль</Link>;
+      return (
+        <div className="aside-nav-item">
+          <NavLink
+            className="aside-nav-link profile"
+            to="/employee/profile"
+            data-tooltip="Профиль"
+          ></NavLink>
+        </div>
+      );
     }
 
     // Если это КЛИЕНТ (по наличию clientId)
     if (userData.clientId) {
-      return <Link className="nav-link" to="/profile">Профиль</Link>;
+      return ( 
+        <div className="aside-nav-item">
+          <NavLink
+            className="aside-nav-link profile"
+            to="/profile"
+            data-tooltip="Профиль"
+          ></NavLink>
+        </div>
+      );
     }
 
     return null; // По умолчанию ничего не показываем
   };
 
   return (
-    <div className="container py-3">
-      <header>
-        <div className="d-flex justify-content-between align-items-center">
-            <h1>SPA раздел с изменениями</h1>
-            <button onClick={handleLogout} className="btn btn-outline-secondary">Выйти</button>
-        </div>
-        <nav className="nav">
-          <Link className="nav-link" to="/">Главная</Link>
+    <div className="main-layout">
+      <aside className='aside-nav'>
+        <div className={`aside-brand ${isScrolled ? 'scrolled' : ''}`}></div>
+        <nav className="aside-nav-bar">
           {renderProfileLink()}
+          <div className="aside-nav-item">
+            <NavLink 
+              className="aside-nav-link tasks"
+              to="/"
+              data-tooltip="Задачи"
+            ></NavLink>
+          </div>
+          <div className="aside-nav-item">
+            <NavLink 
+              className="aside-nav-link task"
+              to="/newtask"
+              data-tooltip="Создать задачу"
+            ></NavLink>
+          </div>
+          <div className="aside-nav-item">
+              <button onClick={handleLogout} className="aside-nav-link logout" data-tooltip="Выйти"></button>
+          </div>
         </nav>
-      </header>
-      
-      <main className="mt-4">
-        <Outlet />
-      </main>
+      </aside>
+      <main className='main-body'>
+        <header className={
+                  `d-flex justify-content-end align-items-center header-line px-2 px-md-4 px-lg-5
+                  ${isScrolled ? 'scrolled' : ''}`
+                }
+        >
+            {renderHeader(isScrolled)}
+        </header>
+        
+        <main className="main-content">
+          <Outlet />
+        </main>
 
-      <footer className="mt-5 text-muted">
-        © SPA Footer
-      </footer>
-    </div>
+        <footer className="mt-5 text-muted">
+          © SPA Footer
+        </footer>
+      </main>
+  </div>
   );
 };
 
