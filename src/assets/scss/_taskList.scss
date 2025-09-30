@@ -1,0 +1,32 @@
+.task-list {
+    .table {
+        --bs-table-bg: $frameBgColor;
+        --bs-emphasis-color: $textColor;
+    }
+
+    &_header {
+        height: 128px;
+    }
+
+    &-filter {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 32px;
+    }
+}
+
+.filter {
+    &-statuses {
+        padding: 15px 18px;
+        border: 1px solid $borderColor;
+        border-radius: 12px;
+
+        &-list {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            margin-bottom: 0;
+            gap: 4px;
+        }
+    }
+}
