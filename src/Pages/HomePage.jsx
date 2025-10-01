@@ -1,7 +1,11 @@
+/**
+ * @todo /tasks?worker=2 не работает на бэкенде!!! здесь все работает!
+ */
 import React, { useState, useEffect } from 'react';
 import apiClient from '../api/axiosConfig';
 import { getUserDataFromToken } from '../utils/authUtils';
 import TaskList from '../Components/TaskList';
+import UserSVG from '../Components/UserSVG';
 // import { Button } from 'react-bootstrap';
 
 const HomePage = () => {
@@ -13,6 +17,9 @@ const HomePage = () => {
   const [statuses, setStatuses] = useState([]);
   const [employees, setEmployees] = useState([]);
   const [statusFilter, setStatusFilter] = useState([]); // Изначально пустой массив, что означает "все"
+  const [startDateFilter, setStartDateFilter] = useState(''); // Фильтр по дате начала
+  const [endDateFilter, setEndDateFilter] = useState('');   // Фильтр по дате окончания
+  const [workerFilter, setWorkerFilter] = useState(''); // Фильтр по исполнителю
 
   const userData = getUserDataFromToken();
   const isRole = {
@@ -22,17 +29,7 @@ const HomePage = () => {
   };
 
   useEffect(() => {
-    apiClient.get('/tasks')
-      .then(response => {
-        setTasks(response.data['member'] || []);
-        setLoading(false);
-      })
-      .catch(err => {
-        setError('Не удалось загрузить список задач.');
-        setLoading(false);
-      });
-
-    apiClient.get('/statuses')
+     apiClient.get('/statuses')
       .then(response => setStatuses(response.data['member'] || []))
       .catch(() => setError('Не удалось загрузить статусы.'));
 
@@ -47,7 +44,39 @@ const HomePage = () => {
         .then(response => setEmployees(response.data['member'] || []))
         .catch(() => setError('Не удалось загрузить сотрудников!'));
     }
-  }, [isRole.client, isRole.admin, isRole.superAdmin]);
+  }, []); // Загружаем один раз при монтировании
+
+  // Этот useEffect будет следить за всеми фильтрами и обновлять задачи
+  useEffect(() => {
+    setLoading(true);
+    const params = new URLSearchParams();
+
+    if (statusFilter.length > 0) {
+      params.append('statuses', statusFilter.join(','));
+    }
+    if (startDateFilter) {
+      params.append('create_start', startDateFilter);
+    }
+    if (endDateFilter) {
+      params.append('create_end', endDateFilter);
+    }
+    if (workerFilter) {
+      params.append('worker', workerFilter);
+    }
+
+    const queryString = params.toString();
+    console.log(queryString);
+    
+    const apiUrl = `/tasks${queryString ? `?${queryString}` : ''}`;
+
+    apiClient.get(apiUrl)
+      .then(response => {
+        setTasks(response.data['member'] || []);
+      })
+      .catch(err => setError('Не удалось загрузить список задач.'))
+      .finally(() => setLoading(false));
+
+  }, [statusFilter, startDateFilter, endDateFilter, workerFilter]); // Зависимости: все наши фильтры
 
   const handleFilter = (clickedStatusId) => {
     let newFilter;
@@ -66,17 +95,6 @@ const HomePage = () => {
     }
 
     setStatusFilter(newFilter); // Обновляем состояние фильтра
-
-    // Формируем URL для запроса задач
-    let apiUrl = '/tasks';
-    if (newFilter.length > 0) {
-      // Если есть выбранные статусы, добавляем их в параметры
-      apiUrl += `?statuses=${newFilter.join(',')}`;
-    }
-
-    apiClient.get(apiUrl)
-      .then(response => setTasks(response.data['member'] || []))
-      .catch(err => setError('Не удалось загрузить список задач.'));
   };
 
   const handleDelete = async (id) => {
@@ -115,8 +133,75 @@ const HomePage = () => {
             </div>
           </div>
           <div className="filter-block">
-            <div className="filter-create">create task</div>
-            <div className="filter-worker">Worker</div>
+            <div className="filter-create">
+              <div className="filter-create-wrap">
+                <div className="filter-create-desc">Создана:</div>
+                <div className="filter-create-inputs">
+                  <label htmlFor="start-date" className={`form-label mb-0 filter-create-label${startDateFilter ? ' active' : ''}`}></label>
+                  <input
+                    type="date"
+                    id="start-date"
+                    className="form-control"
+                    value={startDateFilter}
+                    onChange={(e) => setStartDateFilter(e.target.value)}
+                  />
+                  <label htmlFor="end-date" className={`form-label mb-0 ms-2 filter-create-label${endDateFilter ? ' active' : ''}`}></label>
+                  <input
+                    type="date"
+                    id="end-date"
+                    className="form-control"
+                    value={endDateFilter}
+                    onChange={(e) => setEndDateFilter(e.target.value)}
+                  />
+                </div>
+              </div>
+            </div>
+            <div className="filter-worker">
+              {(isRole.client) && (
+                <div className="filter-worker-wrap">
+                  <div className="filter-worker-label">Исполнитель:</div>
+                  <div className="filter-worker-btns">
+                    <button
+                      className={`btn-switch users${workerFilter === 1 ? ' active' : ''}`}
+                      key={workerFilter}
+                      onClick={() => setWorkerFilter(1)}
+                    >
+                      <UserSVG type="1" />
+                    </button>
+                    <button
+                      className={`btn-switch users${workerFilter === 2 ? ' active' : ''}`}
+                      key={workerFilter}
+                      onClick={() => setWorkerFilter(2)}
+                    >
+                      <UserSVG type="0" />
+                    </button>
+                    <button
+                      className={`btn-switch users${workerFilter === '' ? ' active' : ''}`}
+                      key='all'
+                      onClick={() => setWorkerFilter("")}
+                    >
+                      <UserSVG type="all" />
+                    </button>
+                  </div>
+                </div>
+              )}
+              {(isRole.superAdmin) && (
+                <>
+                  <label htmlFor="worker-filter" className="form-label mb-0">Исполнитель:</label>
+                  <select
+                    id="worker-filter"
+                    className="form-select"
+                    value={workerFilter}
+                    onChange={(e) => setWorkerFilter(e.target.value)}
+                  >
+                    <option value="">Все</option>
+                    {employees.map(employee => (
+                      <option key={employee.id} value={employee.id}>{employee.user_id.name} {employee.user_id.surname}</option>
+                    ))}
+                  </select>
+                </>
+              )}
+            </div>
           </div>
         </div>
       </div>

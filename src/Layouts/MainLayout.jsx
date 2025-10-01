@@ -118,7 +118,7 @@ const MainLayout = () => {
           </div>
         </nav>
       </aside>
-      <main className='main-body'>
+      <div className='main-body'>
         <header className={
                   `d-flex justify-content-end align-items-center header-line px-2 px-md-4 px-lg-5
                   ${isScrolled ? 'scrolled' : ''}`
@@ -131,10 +131,10 @@ const MainLayout = () => {
           <Outlet />
         </main>
 
-        <footer className="mt-5 text-muted">
+        <footer className="main-footer mt-5 text-muted">
           © SPA Footer
         </footer>
-      </main>
+      </div>
   </div>
   );
 };

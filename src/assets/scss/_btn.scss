@@ -11,6 +11,10 @@
         overflow: hidden;
         text-align: left;
 
+        &.users {
+            width: 44px;
+        }
+
         &.active {
             border-left: 6px solid $switchOn;
         }

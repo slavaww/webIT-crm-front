@@ -29,4 +29,75 @@
             gap: 4px;
         }
     }
+
+    &-block {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    &-create {
+        padding: 8px 14px;
+        border: 1px solid $borderColor;
+        border-radius: 12px;
+        width: 100%;
+
+        &-desc {
+            font-size: 14px;
+        }
+        
+        &-inputs {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        &-label {
+            border-left: 6px solid $accentFrameColor;
+            height: 24px;
+
+            &.active {
+                border-left: 6px solid $switchOn;
+            }
+        }
+
+        .form-control {
+            --bs-border-width: 0;
+            padding: 0.25rem 0.5rem;
+            font-size: 0.875rem;
+            width: auto;
+
+            &::-webkit-calendar-picker-indicator {
+                filter: brightness(0) invert(1);
+            }
+        }
+    }
+
+    &-worker {
+        padding: 6px 14px;
+        border: 1px solid $borderColor;
+        border-radius: 12px;
+        width: 100%;
+
+        &-wrap {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        &-label {
+            font-size: 14px;
+        }
+
+        &-btns {
+            display: flex;
+            gap: 8px;
+        }
+
+        .form-select {
+            padding: 0.25rem 0.5rem;
+            font-size: 0.875rem;
+            width: auto;
+        }
+    }
 }

@@ -3,10 +3,14 @@
 }
 .main {
     &-body {
+        display: flex;
+        flex-direction: column;
+        min-height: 100vh;
         margin-left: 80px;
     }
 
     &-content {
+        flex-grow: 1;
         margin-top: 120px;
     
     }
