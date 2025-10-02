@@ -1,7 +1,38 @@
 .task-list {
     .table {
-        --bs-table-bg: $frameBgColor;
-        --bs-emphasis-color: $textColor;
+        --bs-body-bg: #{$framesBgColor};
+        --bs-emphasis-color: #{$textColor};
+        --bs-border-color: #{$borderColor};
+    }
+
+    &-marker {
+        min-width: 48px;
+
+        &-circle {
+            width: 6px;
+            height: 6px;
+            display: inline-block;
+            border-radius: 50%;
+            background-color: $statusColorOther;
+
+            &.status {
+                &-1 {
+                    background-color: $yellow-500;
+                }
+                &-2 {
+                    background-color: $green-500;
+                }
+                &-3 {
+                    background-color: $teal-400;
+                }
+                &-4 {
+                    background-color: $red-500
+                }
+                &-5 {
+                    background-color: $indigo-400;
+                }
+            }
+        }
     }
 
     &_header {

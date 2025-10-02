@@ -163,21 +163,21 @@ const HomePage = () => {
                   <div className="filter-worker-btns">
                     <button
                       className={`btn-switch users${workerFilter === 1 ? ' active' : ''}`}
-                      key={workerFilter}
+                      key="1"
                       onClick={() => setWorkerFilter(1)}
                     >
                       <UserSVG type="1" />
                     </button>
                     <button
                       className={`btn-switch users${workerFilter === 2 ? ' active' : ''}`}
-                      key={workerFilter}
+                      key="2"
                       onClick={() => setWorkerFilter(2)}
                     >
                       <UserSVG type="0" />
                     </button>
                     <button
                       className={`btn-switch users${workerFilter === '' ? ' active' : ''}`}
-                      key='all'
+                      key="3"
                       onClick={() => setWorkerFilter("")}
                     >
                       <UserSVG type="all" />
