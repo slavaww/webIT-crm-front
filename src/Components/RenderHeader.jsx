@@ -14,7 +14,7 @@ const renderHeader = (isScrolled = false) => {
     const [dayOfPay, setDayOfPay] = useState(28);
     const [monthOfPay, setMonthOfPay] = useState(1);
     const userData = getUserDataFromToken();
-    const classClientTitle = `header-line-client-title me-2 me-md-3 me-lg-5${isScrolled ? ' scrolled' : ''}`;
+    const classClientTitle = `d-none d-lg-block header-line-client-title me-2 me-md-3 me-lg-5${isScrolled ? ' scrolled' : ''}`;
     const classClientLead = `header-line-client-lead${isScrolled ? ' scrolled' : ''}`;
     const classClientBlock = `d-flex align-items-center justify-content-between me-2 me-md-3 me-lg-5 header-line-client-block${isScrolled ? ' scrolled' : ''}`;
     const classClientIndicator = `header-line-client-indicator${isPaid ? ' paid' : ''}`;

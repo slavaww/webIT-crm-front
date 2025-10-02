@@ -23,13 +23,15 @@ const TaskList = ({ tasks, clients, statuses, employees, isRole, onEdit, onDelet
             }
             <th className='task-list-date-create'>Создана</th> 
             <th className='task-list-title'>Название</th>
-            <th className='task-list-date-start'>Дата начала<br />Дата окончания</th>
-            <th className='task-list-status'>Статус</th>
-            <th className='task-list-creator'>Автор</th>
+            <th className='d-none d-xl-table-cell task-list-date-start'>Дата начала<br />Дата окончания</th>
+            <th className='d-none d-sm-table-cell task-list-status'>Статус</th>
+            <th className='d-none d-lg-table-cell task-list-creator'>Автор</th>
             {(isRole.client || isRole.superAdmin) && 
-            <th className='task-list-worker'>Исполнитель</th>
+            <th className='d-none d-md-table-cell task-list-worker'>Исполнитель</th>
             }
-            <th>Действия</th>
+            {isRole.superAdmin && (
+              <th>Действия</th>
+            )}
           </tr>
         </thead>
         <tbody>
@@ -41,7 +43,7 @@ const TaskList = ({ tasks, clients, statuses, employees, isRole, onEdit, onDelet
               )}
               <td>{formatTaskDate(task.create_date)}</td>
               <td><Link to={`/tasks/${task.id}`}>{task.title}</Link></td>
-              <td> 
+              <td className='d-none d-xl-table-cell task-list-date-start'> 
                   {task.start_time
                       ? <>{formatTaskDate(task.start_time)}<br />{
                           task.end_time 
@@ -51,10 +53,10 @@ const TaskList = ({ tasks, clients, statuses, employees, isRole, onEdit, onDelet
                       : 'Не начата'
                   }
               </td>
-              <td>{task.status?.status || 'Не указан'}</td>
-              <td>{task.creator?.name} {task.creator?.surname}</td>
+              <td className='d-none d-sm-table-cell task-list-status'>{task.status?.status || 'Не указан'}</td>
+              <td className='d-none d-lg-table-cell task-list-creator'>{task.creator?.name} {task.creator?.surname}</td>
               {(isRole.client || isRole.superAdmin) && (
-                <td>
+                <td className='d-none d-md-table-cell task-list-worker'>
                   {(() => {
                     const employee = task.worker?.user_id;
                     if (!employee) return 'Не назначен';
@@ -62,12 +64,12 @@ const TaskList = ({ tasks, clients, statuses, employees, isRole, onEdit, onDelet
                   })()}
                 </td>
               )}
-              <td>
-                <Button variant="primary" size="sm" onClick={() => onEdit(task)}>Редактировать</Button>
+                {/* <Button variant="primary" size="sm" onClick={() => onEdit(task)}>Редактировать</Button> */}
                 {isRole.superAdmin && (
-                  <Button variant="danger" size="sm" className="ml-2" onClick={() => onDelete(task.id)}>Удалить</Button>
+                  <td>
+                    <Button variant="danger" size="sm" className="ml-2" onClick={() => onDelete(task.id)}>Удалить</Button>
+                  </td>
                 )}
-              </td>
             </tr>
           ))}
         </tbody>

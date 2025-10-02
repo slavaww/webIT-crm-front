@@ -113,7 +113,7 @@ const HomePage = () => {
 
   return (
     <div className='task-list'>
-      <div className="py-2 px-2 px-md-4 px-lg-5 d-flex justify-content-between align-items-center task_list_header">
+      <div className="py-2 px-2 px-md-4 px-lg-5 d-lg-flex justify-content-between align-items-center task_list_header">
         <h2>Задачи</h2>
         <div className="task-list-filter">
           <div className="filter-statuses">
@@ -132,7 +132,7 @@ const HomePage = () => {
               <button className={`btn-switch${statusFilter.length === 0 ? ' active' : ''}`} onClick={() => handleFilter('all')}>Все</button>
             </div>
           </div>
-          <div className="filter-block">
+          <div className="d-none d-sm-block filter-block">
             <div className="filter-create">
               <div className="filter-create-wrap">
                 <div className="filter-create-desc">Создана:</div>

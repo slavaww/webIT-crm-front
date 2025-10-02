@@ -42,8 +42,15 @@
     &-filter {
         display: flex;
         justify-content: space-between;
-        align-items: center;
-        gap: 32px;
+        flex-direction: column;
+        gap: 16px;
+        align-items: flex-start;
+        
+        @include media-breakpoint-up(md) {
+            align-items: center;
+            flex-direction: row;
+            gap: 32px;
+        }
     }
 }
 
