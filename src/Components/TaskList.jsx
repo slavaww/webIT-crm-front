@@ -42,7 +42,7 @@ const TaskList = ({ tasks, clients, statuses, employees, isRole, onEdit, onDelet
                 <td className='task-list-client'>{task.client?.title || 'Внутренняя задача'}</td>
               )}
               <td>{formatTaskDate(task.create_date)}</td>
-              <td><Link to={`/tasks/${task.id}`}>{task.title}</Link></td>
+              <td><Link className='link-light link-offset-2 link-underline-opacity-0 link-underline-opacity-100-hover' to={`/tasks/${task.id}`}>{task.title}</Link></td>
               <td className='d-none d-xl-table-cell task-list-date-start'> 
                   {task.start_time
                       ? <>{formatTaskDate(task.start_time)}<br />{
@@ -53,7 +53,7 @@ const TaskList = ({ tasks, clients, statuses, employees, isRole, onEdit, onDelet
                       : 'Не начата'
                   }
               </td>
-              <td className='d-none d-sm-table-cell task-list-status'>{task.status?.status || 'Не указан'}</td>
+              <td className={`d-none d-sm-table-cell task-list-status status-${getStatusId(task.status["@id"])}`}>{task.status?.status || 'Не указан'}</td>
               <td className='d-none d-lg-table-cell task-list-creator'>{task.creator?.name} {task.creator?.surname}</td>
               {(isRole.client || isRole.superAdmin) && (
                 <td className='d-none d-md-table-cell task-list-worker'>

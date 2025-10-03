@@ -1,8 +1,32 @@
 .task-list {
-    .table {
-        --bs-body-bg: #{$framesBgColor};
-        --bs-emphasis-color: #{$textColor};
-        --bs-border-color: #{$borderColor};
+    &-wrapper {
+        .table {
+            --bs-body-bg: #{$framesBgColor};
+            --bs-emphasis-color: #{$textColor};
+            --bs-border-color: #{$borderColor};
+
+            td {
+                font-size: 14px;
+            }
+        }
+    }
+
+    &-status.status {
+        &-1 {
+            color: $yellow-500;
+        }
+        &-2 {
+            color: $green-500;
+        }
+        &-3 {
+            color: $teal-400;
+        }
+        &-4 {
+            color: $red-500;
+        }
+        &-5 {
+            color: $indigo-400;
+        }
     }
 
     &-marker {
