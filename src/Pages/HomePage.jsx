@@ -119,7 +119,7 @@ const HomePage = () => {
           <div className="filter-statuses">
             <div className='list-unstyled filter-statuses-list'>
               {/* Кнопки статусов */}
-              {statuses.map(status => (
+              {statuses.slice(0, 7).map(status => (
                 <button
                   className={`btn-switch${statusFilter.includes(status.id) ? ' active' : ''}`}
                   id={status.id}
@@ -132,7 +132,7 @@ const HomePage = () => {
               <button className={`btn-switch${statusFilter.length === 0 ? ' active' : ''}`} onClick={() => handleFilter('all')}>Все</button>
             </div>
           </div>
-          <div className="d-none d-sm-block filter-block">
+          <div className="d-none d-sm-flex filter-block">
             <div className="filter-create">
               <div className="filter-create-wrap">
                 <div className="filter-create-desc">Создана:</div>

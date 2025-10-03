@@ -14,7 +14,7 @@ const TaskList = ({ tasks, clients, statuses, employees, isRole, onEdit, onDelet
   
   return (
     <div className="task-list-wrapper px-1 px-md-2">
-      <table className="table table-striped mt-3">
+      <table className="table table-striped">
         <thead>
           <tr>
             <th className='task-list-marker'></th> 
