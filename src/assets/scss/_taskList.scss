@@ -16,7 +16,7 @@
             color: $yellow-500;
         }
         &-2 {
-            color: $green-500;
+            color: $yellow-200;
         }
         &-3 {
             color: $teal-400;
@@ -25,7 +25,13 @@
             color: $red-500;
         }
         &-5 {
-            color: $indigo-400;
+            color: $red-300;
+        }
+        &-6 {
+            color: $gray-500;
+        }
+        &-7 {
+            color: $gray-800;
         }
     }
 
@@ -44,7 +50,7 @@
                     background-color: $yellow-500;
                 }
                 &-2 {
-                    background-color: $green-500;
+                    background-color: $yellow-200;
                 }
                 &-3 {
                     background-color: $teal-400;
@@ -53,7 +59,13 @@
                     background-color: $red-500
                 }
                 &-5 {
-                    background-color: $indigo-400;
+                    background-color: $red-400;
+                }
+                &-6 {
+                    background-color: $gray-500;
+                }
+                &-7 {
+                    background-color: $gray-800;
                 }
             }
         }
