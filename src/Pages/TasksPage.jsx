@@ -19,6 +19,7 @@ const HomePage = () => {
   const [startDateFilter, setStartDateFilter] = useState(''); // Фильтр по дате начала
   const [endDateFilter, setEndDateFilter] = useState('');   // Фильтр по дате окончания
   const [workerFilter, setWorkerFilter] = useState(''); // Фильтр по исполнителю
+  const [clientFilter, setClientFilter] = useState(''); // Фильтр по исполнителю
 
   const userData = getUserDataFromToken();
   const isRole = {
@@ -62,9 +63,11 @@ const HomePage = () => {
     if (workerFilter) {
       params.append('worker', workerFilter);
     }
+    if (clientFilter) {
+      params.append('client', clientFilter);
+    }
 
     const queryString = params.toString();
-    console.log(queryString);
     
     const apiUrl = `/tasks${queryString ? `?${queryString}` : ''}`;
 
@@ -75,7 +78,7 @@ const HomePage = () => {
       .catch(err => setError('Не удалось загрузить список задач.'))
       .finally(() => setLoading(false));
 
-  }, [statusFilter, startDateFilter, endDateFilter, workerFilter]); // Зависимости: все наши фильтры
+  }, [statusFilter, startDateFilter, endDateFilter, workerFilter, clientFilter]); // Зависимости: все наши фильтры
 
   const handleFilter = (clickedStatusId) => {
     let newFilter;
@@ -134,6 +137,9 @@ const HomePage = () => {
               employees={employees}
               workerFilter={workerFilter}
               setWorkerFilter={setWorkerFilter}
+              clients={clients}
+              clientFilter={clientFilter}
+              setClientFilter={setClientFilter}
             />
           </div>
         </div>

@@ -1,8 +1,8 @@
 import UserSVG from '../Components/UserSVG';
 
 
-const FilterWorker = ({ className = "filter-worker", employees, isRole, workerFilter, setWorkerFilter }) => {
-    if (isRole.superAdmin) {
+const FilterWorker = ({ className = "filter-worker", employees, isRole, workerFilter, setWorkerFilter, clients, clientFilter, setClientFilter}) => {
+    if (isRole.superAdmin || isRole.admin) {
         className = `${className} d-flex justify-content-between align-items-center`
     }
     return (
@@ -39,14 +39,30 @@ const FilterWorker = ({ className = "filter-worker", employees, isRole, workerFi
                 <>
                     <label htmlFor="worker-filter" className="form-label mb-0">Исполнитель:</label>
                     <select
-                    id="worker-filter"
-                    className="form-select"
-                    value={workerFilter}
-                    onChange={(e) => setWorkerFilter(e.target.value)}
+                        id="worker-filter"
+                        className="form-select"
+                        value={workerFilter}
+                        onChange={(e) => setWorkerFilter(e.target.value)}
                     >
                         <option value="">Все</option>
                         {employees.map(employee => (
                             <option key={employee.id} value={employee.id}>{employee.user_id.name} {employee.user_id.surname}</option>
+                        ))}
+                    </select>
+                </>
+            )}
+            {(isRole.admin) && (
+                <>
+                    <label htmlFor="worker-filter" className="form-label mb-0">Клиент:</label>
+                    <select
+                        id="worker-filter"
+                        className="form-select"
+                        value={clientFilter}
+                        onChange={(e) => setClientFilter(e.target.value)}
+                    >
+                        <option value="">Все</option>
+                        {clients.map(client => (
+                            <option key={client.id} value={client.id}>{client.title}</option>
                         ))}
                     </select>
                 </>
