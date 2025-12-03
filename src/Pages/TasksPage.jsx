@@ -115,7 +115,6 @@ const HomePage = () => {
       <div className="py-2 px-2 px-md-4 px-lg-5 d-lg-flex justify-content-between align-items-center task_list_header">
         <h2>Задачи</h2>
         <div className="task-list-filter">
-          
           <FilterStatuses
             statuses={statuses}
             statusFilter={statusFilter}
@@ -137,17 +136,16 @@ const HomePage = () => {
               setWorkerFilter={setWorkerFilter}
             />
           </div>
-
         </div>
       </div>
       <TaskList 
         tasks={tasks} 
-        clients={clients} 
-        statuses={statuses} 
-        employees={employees} 
-        isRole={isRole} 
+        clients={clients}
+        statuses={statuses}
+        employees={employees}
+        isRole={isRole}
         // onEdit={handleEdit} 
-        onDelete={handleDelete} 
+        onDelete={handleDelete}
       />
     </div>
   );

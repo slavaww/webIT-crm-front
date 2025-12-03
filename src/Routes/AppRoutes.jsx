@@ -6,7 +6,7 @@ import MainLayout from '../Layouts/MainLayout';
 import ProtectedRoute from './ProtectedRoute';
 
 // Ленивая загрузка страниц
-const HomePage = React.lazy(() => import('../Pages/HomePage'));
+const TasksPage = React.lazy(() => import('../Pages/TasksPage'));
 const ProfilePage = React.lazy(() => import('../Pages/ProfilePage'));
 const NewTaskPage = React.lazy(() => import('../Pages/NewTaskPage'));
 const LoginPage = React.lazy(() => import('../Pages/LoginPage'));
@@ -22,7 +22,7 @@ const AppRoutes = () => {
         {/* Роуты, требующие токен. Outlet внутри MainLayout */}
         <Route element={<ProtectedRoute />}>
           <Route path="/" element={<MainLayout />}>
-            <Route index element={<HomePage />} />
+            <Route index element={<TasksPage />} />
             <Route path="profile" element={<ProfilePage />} />
             <Route path="newtask" element={<NewTaskPage />} />
             <Route path="/tasks/:id" element={<TaskDetailPage />} />
