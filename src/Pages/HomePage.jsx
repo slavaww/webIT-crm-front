@@ -3,6 +3,8 @@ import apiClient from '../api/axiosConfig';
 import { getUserDataFromToken } from '../utils/authUtils';
 import TaskList from '../Components/TaskList';
 import FilterWorker from '../Components/FilterWorker';
+import FilterCreate from '../Components/FilterCreate';
+import FilterStatuses from '../Components/FilterStatuses';
 // import { Button } from 'react-bootstrap';
 
 const HomePage = () => {
@@ -113,46 +115,20 @@ const HomePage = () => {
       <div className="py-2 px-2 px-md-4 px-lg-5 d-lg-flex justify-content-between align-items-center task_list_header">
         <h2>Задачи</h2>
         <div className="task-list-filter">
-          <div className="filter-statuses">
-            <div className='list-unstyled filter-statuses-list'>
-              {/* Кнопки статусов */}
-              {statuses.slice(0, 7).map(status => (
-                <button
-                  className={`btn-switch${statusFilter.includes(status.id) ? ' active' : ''}`}
-                  id={status.id}
-                  key={status.id}
-                  onClick={() => handleFilter(status.id)}
-                >
-                  {status.status}
-                </button>
-              ))}
-              <button className={`btn-switch${statusFilter.length === 0 ? ' active' : ''}`} onClick={() => handleFilter('all')}>Все</button>
-            </div>
-          </div>
+          
+          <FilterStatuses
+            statuses={statuses}
+            statusFilter={statusFilter}
+            handleFilter={handleFilter}
+          />
+
           <div className="d-none d-sm-flex filter-block">
-            <div className="filter-create">
-              <div className="filter-create-wrap">
-                <div className="filter-create-desc">Создана:</div>
-                <div className="filter-create-inputs">
-                  <label htmlFor="start-date" className={`form-label mb-0 filter-create-label${startDateFilter ? ' active' : ''}`}></label>
-                  <input
-                    type="date"
-                    id="start-date"
-                    className="form-control"
-                    value={startDateFilter}
-                    onChange={(e) => setStartDateFilter(e.target.value)}
-                  />
-                  <label htmlFor="end-date" className={`form-label mb-0 ms-2 filter-create-label${endDateFilter ? ' active' : ''}`}></label>
-                  <input
-                    type="date"
-                    id="end-date"
-                    className="form-control"
-                    value={endDateFilter}
-                    onChange={(e) => setEndDateFilter(e.target.value)}
-                  />
-                </div>
-              </div>
-            </div>
+            <FilterCreate
+              startDateFilter={startDateFilter}
+              endDateFilter={endDateFilter}
+              setStartDateFilter={setStartDateFilter}
+              setEndDateFilter={setEndDateFilter}
+            />
 
             <FilterWorker
               isRole={isRole}
@@ -160,8 +136,8 @@ const HomePage = () => {
               workerFilter={workerFilter}
               setWorkerFilter={setWorkerFilter}
             />
-
           </div>
+
         </div>
       </div>
       <TaskList 
