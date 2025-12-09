@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import apiClient from '../api/axiosConfig';
-import { getUserDataFromToken } from '../utils/authUtils';
+import { isRole } from '../utils/isRole';
 import TaskList from '../Components/TaskList';
 import FilterWorker from '../Components/FilterWorker';
 import FilterCreate from '../Components/FilterCreate';
@@ -20,13 +20,6 @@ const HomePage = () => {
   const [endDateFilter, setEndDateFilter] = useState('');   // Фильтр по дате окончания
   const [workerFilter, setWorkerFilter] = useState(''); // Фильтр по исполнителю
   const [clientFilter, setClientFilter] = useState(''); // Фильтр по исполнителю
-
-  const userData = getUserDataFromToken();
-  const isRole = {
-    client: userData?.roles.includes('ROLE_USER') && !userData?.roles.includes('ROLE_ADMIN') && !userData?.roles.includes('ROLE_SUPER_ADMIN'),
-    admin: userData?.roles.includes('ROLE_ADMIN') && !userData?.roles.includes('ROLE_SUPER_ADMIN'),
-    superAdmin: userData?.roles.includes('ROLE_SUPER_ADMIN'),
-  };
 
   useEffect(() => {
      apiClient.get('/statuses')

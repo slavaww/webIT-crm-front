@@ -1,0 +1,48 @@
+.task-detail {
+    &__header {
+        padding: 24px 32px;
+        border-radius: 12px;
+        background-color: var(--task-detail-header-bg);
+
+        & > h2 {
+            margin-bottom: 0;
+        }
+    }
+
+    &__frame {
+        &--def {
+            background-color: var(--task-detail-frame-bg);
+            border-radius: 12px;
+            padding: 16px 32px;
+        }
+
+        &--at-work {
+            background-color: #268E0C;
+        }
+    }
+
+    &__label {
+        font-size: 14px;
+        color: $accentFrameColor;
+    }
+
+    &__no-worker {
+        color: var(--bs-orange);
+        margin-top: 9px;
+    }
+
+    &__main-field {
+        line-height: 1;
+    }
+
+    &__sub-field {
+        font-size: 12px;
+    }
+
+    &__description {
+        background-color: $frameDescrBgColor;
+        border-radius: 6px;
+        padding: 24px 32px;
+        height: 100%;
+    }
+}

@@ -1,3 +1,7 @@
+:root {
+    --task-detail-header-bg: #{$headerFrameBgColor};
+    --task-detail-frame-bg: #{$frameDefBgColor};
+}
 #root {
     width: 100dvw;
 }
@@ -12,5 +16,36 @@
     &-content {
         flex-grow: 1;
         margin-top: 120px;
+    }
+}
+
+.status {
+    &-field {
+        padding: 6px 18px;
+        border-radius: 16px;
+    }
+
+    &-1 {
+        color: black;
+        background-color: $yellow-500;
+    }
+    &-2 {
+        color: black;
+        background-color: $yellow-200;
+    }
+    &-3 {
+        background-color: $green-500;
+    }
+    &-4 {
+        background-color: $red-500
+    }
+    &-5 {
+        background-color: $red-400;
+    }
+    &-6 {
+        background-color: $gray-500;
+    }
+    &-7 {
+        background-color: $gray-800;
     }
 }

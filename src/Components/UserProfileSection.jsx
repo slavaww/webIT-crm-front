@@ -4,7 +4,7 @@ const UserProfileSection = ({ user, onChange }) => {
     if (!user) return null;
 
     return (
-        <fieldset>
+        <div className="col-6">
             <div className="mb-3">
                 <label htmlFor="name" className="form-label">Имя</label>
                 <input type="text" className="form-control" id="name" name="name" value={user.name || ''} onChange={onChange} />
@@ -17,7 +17,7 @@ const UserProfileSection = ({ user, onChange }) => {
                 <label htmlFor="surname" className="form-label">Фамилия</label>
                 <input type="text" className="form-control" id="surname" name="surname" value={user.surname || ''} onChange={onChange} />
             </div>
-        </fieldset>
+        </div>
     );
 };
 

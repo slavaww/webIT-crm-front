@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { Button } from 'react-bootstrap';
 import apiClient from '../api/axiosConfig';
 import UserProfileSection from './UserProfileSection';
 import ClientProfileSection from './ClientProfileSection';
@@ -164,36 +165,42 @@ export default function ProfileEditor({ clientId }) {
     if (!user) return null;
 
     return (
-        <div className="container mt-4">
-            <h2>Редактирование профиля</h2>
+        <div className="container-fluid px-4 mt-4">
+
             {error && <div className="alert alert-danger">{error}</div>}
             
             <form onSubmit={handleSubmit}>
-                <ClientProfileSection profile={profile} onChange={handleChangeProfile} />
-                {/* Данные пользователя (ФИО) */}
-                <UserProfileSection user={user} onChange={handleChangeUser} />
+                <div className="row">
+                    <ClientProfileSection profile={profile} onChange={handleChangeProfile} />
+                    {/* Данные пользователя (ФИО) */}
+                    <UserProfileSection user={user} onChange={handleChangeUser} />
 
-                <EmergencyContactSection
-                    contactData={emergencyContact}
-                    isVisible={isEmergencyFormVisible}
-                    onChange={handleChangeEmergency}
-                    onShow={() => setIsEmergencyFormVisible(true)}
-                    onDelete={handleDeleteEmergencyContact}
-                />
+                    <div className="col-12">
+                        <EmergencyContactSection
+                            contactData={emergencyContact}
+                            isVisible={isEmergencyFormVisible}
+                            onChange={handleChangeEmergency}
+                            onShow={() => setIsEmergencyFormVisible(true)}
+                            onDelete={handleDeleteEmergencyContact}
+                        />
+                    </div>
 
-                {/* ДОБАВЛЕННОЕ ПОЛЕ ПАРОЛЯ */}
-                <hr className="my-4" />
+                    {/* ДОБАВЛЕННОЕ ПОЛЕ ПАРОЛЯ */}
+                    <hr className="my-4 col-12" />
 
-                <PasswordSection password={newPassword} onChange={handleChangePassword} />
+                    <PasswordSection password={newPassword} onChange={handleChangePassword} />
 
-                <AutoDismissAlert 
-                    message={success} 
-                    type="success" 
-                    onDismiss={() => setSuccess(null)} 
-                />
-                <button type="submit" className="btn btn-primary" disabled={loading}>
-                    {loading ? 'Сохранение...' : 'Сохранить изменения'}
-                </button>
+                    <AutoDismissAlert 
+                        message={success} 
+                        type="success" 
+                        onDismiss={() => setSuccess(null)} 
+                    />
+                    <div className="col-12">
+                        <Button type="submit" variant='primary' disabled={loading}>
+                            {loading ? 'Сохранение...' : 'Сохранить изменения'}
+                        </Button>
+                    </div>
+                </div>
             </form>
         </div>
     );

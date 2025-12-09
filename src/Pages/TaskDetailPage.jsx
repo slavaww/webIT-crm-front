@@ -1,16 +1,14 @@
 import React, { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import apiClient from "../api/axiosConfig";
-import { Card, ListGroup, Form, Button } from "react-bootstrap";
-import { formatTaskDate } from "../utils/dateFormat";
-import MDEditor from "@uiw/react-md-editor";
-import ImageUploadButton from "../Components/ImageUploadButton";
+import { Button } from "react-bootstrap";
+import EditSVG from "../Components/EditSVG";
+import { isRole } from '../utils/isRole';
+import CommentsAll from '../Components/CommentsAll';
 
 const TaskDetail = () => {
   const { id } = useParams(); // Получаем ID задачи из URL
   const [task, setTask] = useState(null);
-  const [comments, setComments] = useState([]);
-  const [newComment, setNewComment] = useState("");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
@@ -26,50 +24,20 @@ const TaskDetail = () => {
         setError("Не удалось загрузить задачу.");
         setLoading(false);
       });
-
-    // Загрузка комментариев
-    apiClient
-      .get(`/tasks/${id}/comments`)
-      .then((response) => {
-        setComments(response.data["member"] || []);
-      })
-      .catch((err) => {
-        setError("Не удалось загрузить комментарии.");
-      });
   }, [id]);
 
-  const handleAddComment = async () => {
-    if (newComment.trim()) {
-      try {
-        const response = await apiClient.post(
-          `/tasks/${id}/comments`,
-          {
-            description: newComment,
-            task: `/api/tasks/${id}`,
-          },
-          { headers: { "Content-Type": "application/ld+json" } }
-        );
-        setComments([...comments, response.data]);
-        setNewComment("");
-      } catch (err) {
-        setError("Ошибка при добавлении комментария.");
-      }
+  const getStatusId = () => {
+    if (task.status) {
+      return (task.status["@id"].replace("/api/statuses/", "") );
     }
-  };
+  }
 
-  const handleImageUpload = async (file) => {
-    const formData = new FormData();
-    formData.append("image", file);
-
-    try {
-      const response = await apiClient.post("/images/upload", formData, {
-        headers: { "Content-Type": "multipart/form-data" },
-      });
-      return response.data.url;
-    } catch (err) {
-      console.error("Ошибка загрузки:", err);
-      return null;
+  const classColorTaskEnd = () => {
+    if (!task.end_time) {
+      return ' task-detail__frame--at-work';
     }
+
+    return '';
   };
 
   if (loading) return <div>Загрузка...</div>;
@@ -77,88 +45,86 @@ const TaskDetail = () => {
   if (!task) return <div>Задача не найдена.</div>;
 
   return (
-    <div className="container mt-4">
-      <h2>Детали задачи: {task.title}</h2>
-      <Card>
-        <Card.Body>
-          <Card.Text>
-            <strong>Описание:</strong> {task.description}
-          </Card.Text>
-          <Card.Text>
-            <strong>Дата создания:</strong>{" "}
-            {new Date(task.create_date).toLocaleDateString()}
-          </Card.Text>
-          <Card.Text>
-            <strong>Создатель:</strong> {task.creator?.name}{" "}
-            {task.creator?.surname}
-          </Card.Text>
-          <Card.Text>
-            <strong>Клиент:</strong> {task.client?.title}
-          </Card.Text>
-          <Card.Text>
-            <strong>Дата начала:</strong>{" "}
-            {task.start_time
-              ? new Date(task.start_time).toLocaleString()
-              : "Не указана"}
-          </Card.Text>
-          <Card.Text>
-            <strong>Дата окончания:</strong>{" "}
-            {task.end_time
-              ? new Date(task.end_time).toLocaleString()
-              : "Не указана"}
-          </Card.Text>
-          <Card.Text>
-            <strong>Статус:</strong> {task.status?.status}
-          </Card.Text>
-          <Card.Text>
-            <strong>Исполнитель:</strong> {task.worker?.user_id?.name}{" "}
-            {task.worker?.user_id?.surname}
-            {" ("}
-            {task.worker?.job_title}
-            {")"}
-          </Card.Text>
-        </Card.Body>
-      </Card>
-
-      <h3 className="mt-4">Комментарии</h3>
-      {comments.map((comment) => (
-        <ListGroup className="mb-3" key={comment.id}>
-          <ListGroup.Item>
-            {formatTaskDate(comment.created_at)}
-            {" - "}
-            <strong>
-              {comment.author?.name} {comment.author?.surname}
-            </strong>
-            {" ("}
-            {comment.author?.employee?.job_title ||
-              comment.author?.client?.title}
-            {")"}
-          </ListGroup.Item>
-          <ListGroup.Item>
-            {/* {comment.description} */}
-            <MDEditor.Markdown source={comment.description} />
-          </ListGroup.Item>
-        </ListGroup>
-      ))}
-      {comments.length === 0 && <p>Нет комментариев.</p>}
-
-      <Form.Group className="mb-3">
-        <Form.Label>Добавить комментарий</Form.Label>
-        <div className="mb-2">
-          <ImageUploadButton 
-            onImageUpload={handleImageUpload}
-            onInsert={(markdown) => setNewComment(prev => prev + '\n' + markdown)}
-            />
+    <div className="container-flex mt-4 mx-4 task-detail">
+      <div className="row">
+        <div className="col-9">
+          <div className="task-detail__header d-flex justify-content-between align-items-center">
+            <h2>{task.title}</h2>
+            <EditSVG />
+          </div>
         </div>
-        <MDEditor
-          value={newComment}
-          onChange={setNewComment}
-          height={200}
-        />
-      </Form.Group>
-      <Button variant="primary" onClick={handleAddComment}>
-        Добавить
-      </Button>
+        <div className="col-3">
+          <div className="task-detail__frame--def d-flex justify-content-between align-items-center">
+            {(isRole.client || isRole.superAdmin) && (
+              <>
+                <div className="task-detail__worker">
+                  <div className="task-detail__label">Исполнитель:</div>
+                  {task.worker?.user_id?.name && (
+                    <div className="task-detail__main-field">
+                      {task.worker?.user_id?.name} {task.worker?.user_id?.surname}
+                    </div>
+                  )}
+                  {!task.worker?.user_id?.name && (
+                    <div className="task-detail__no-worker">Не назначен</div>
+                  )}
+                  {task.worker?.job_title && (
+                    <div className="task-detail__sub-field">
+                      {task.worker?.job_title}
+                    </div>
+                  )}
+                </div>
+                {isRole.admin && (
+                  <EditSVG />
+                )}
+              </>
+            )}
+            {isRole.admin && (
+              <>
+                <div className="task-detail__label">Клиент:</div>
+                <div className="task-detail__main-field">{task.client?.title}</div>
+              </>
+            )}
+          </div>
+        </div>
+      </div>
+      <div className="row mt-4">
+        <div className="col-9">
+          <div className="task-detail__description d-flex justify-content-between">{task.description}<EditSVG /></div>
+        </div>
+        <div className="col-3">
+          <div className="d-flex flex-column h-100">
+            <div className="task-detail__frame--def mb-4">
+              <div className="task-detail__label">Создана:</div>
+              <div className="task-detail__main-field">
+                {new Date(task.create_date).toLocaleDateString()}
+              </div>
+              <div className="task-detail__sub-field">
+                {task.creator?.name}{" "}{task.creator?.surname}
+              </div>
+            </div>
+            <div className={`task-detail__frame--def mb-4${classColorTaskEnd()}`}>
+              {task.start_time && task.end_time && (
+                <div className="task-detail__label">Начата:{" "}{new Date(task.start_time).toLocaleString()}</div>
+              )}
+              {task.end_time && (
+                <div className="task-detail__main-field">Дата окончания: <strong>{new Date(task.end_time).toLocaleString()}</strong></div>
+              )}
+              {!task.end_time && (
+                <div className="d-flex justify-content-between align-items-center">
+                  <div className="task-detail__main-field">В работе</div>
+                  <Button
+                    variant="danger"
+                  >Завершить</Button>
+                </div>
+              )}
+            </div>
+            <div className="task-detail__frame--def mb-4">Время:</div>
+            <div className="task-detail__frame--def mt-auto"><strong>Статус:</strong> <span className={`status-field status-${getStatusId()}`}>{task.status?.status}</span></div>
+          </div>
+        </div>
+      </div>
+
+      <CommentsAll id={id} />
     </div>
   );
 };

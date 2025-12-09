@@ -1,4 +1,5 @@
 import { useEffect } from 'react';
+import { Alert, CloseButton } from 'react-bootstrap';
 
 const AutoDismissAlert = ({ message, type, onDismiss, duration = 5000 }) => {
     useEffect(() => {
@@ -12,15 +13,15 @@ const AutoDismissAlert = ({ message, type, onDismiss, duration = 5000 }) => {
     if (!message) return null;
 
     return (
-        <div className={`alert alert-${type} alert-dismissible fade show`}>
+        <Alert variant={type} onClose={onDismiss} dismissible>
             {message}
-            <button 
-                type="button" 
-                className="btn-close" 
+            <CloseButton 
                 onClick={onDismiss}
                 aria-label="Закрыть"
-            ></button>
-        </div>
+            />
+        </Alert>
+        // <div className={`alert alert-${type} alert-dismissible fade show`}>
+        // </div>
     );
 };
 
