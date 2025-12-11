@@ -1,4 +1,3 @@
-import React from 'react';
 import { Button } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
 import { formatTaskDate } from '../utils/dateFormat';
@@ -18,10 +17,10 @@ const TaskList = ({ tasks, isRole, onDelete }) => {
         <thead>
           <tr>
             <th className='task-list-marker'></th> 
+            <th className='task-list-title'>Задача</th>
             {(isRole.admin || isRole.superAdmin) && 
             <th className='task-list-client'>Клиент</th>
             }
-            <th className='task-list-title'>Задача</th>
             <th className='task-list-date-create'>Создана</th> 
             <th className='d-none d-xl-table-cell task-list-date-start'>Дата начала<br />Дата окончания</th>
             <th className='d-none d-sm-table-cell task-list-status'>Статус</th>
@@ -38,10 +37,10 @@ const TaskList = ({ tasks, isRole, onDelete }) => {
           {tasks.map(task => (
             <tr key={task.id}>
               <td className='text-center'><span className={`task-list-marker-circle status-${getStatusId(task.status["@id"])}`}></span></td>
+              <td><Link className='link-light link-offset-2 link-underline-opacity-0 link-underline-opacity-100-hover' to={`/tasks/${task.id}`}>{task.title}</Link></td>
               {(isRole.admin || isRole.superAdmin) && (
                 <td className='task-list-client'>{task.client?.title || 'Внутренняя задача'}</td>
               )}
-              <td><Link className='link-light link-offset-2 link-underline-opacity-0 link-underline-opacity-100-hover' to={`/tasks/${task.id}`}>{task.title}</Link></td>
               <td>{formatTaskDate(task.create_date)}</td>
               <td className='d-none d-xl-table-cell task-list-date-start'> 
                   {task.start_time

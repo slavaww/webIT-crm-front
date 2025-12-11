@@ -59,6 +59,9 @@ const TaskDetail = () => {
         const dataToPatch = {
           endTime: completedStatusId,
         };
+        if (completedStatusId === 1 && getStatusId() < 6) {
+          dataToPatch.status = "/api/statuses/6";
+        }
 
         const response = await apiClient.patch(`/tasks/${id}`, dataToPatch, {
           headers: { 'Content-Type': 'application/merge-patch+json' }
