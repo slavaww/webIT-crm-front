@@ -91,7 +91,6 @@ const EditSVG = ({width = 24, height = 24, color = '#FEF7FF', context = null, ta
                             )}
                             {formType == 'status' && (
                                 <Form.Select name={fieldName} value={valueField} onChange={onChange} required autoFocus>
-                                    <option value="">Выберите статус задачи</option>
                                     {selectData.map(selected => (
                                         <option key={selected.id} value={selected['@id']}>{selected?.status}</option>
                                     ))}

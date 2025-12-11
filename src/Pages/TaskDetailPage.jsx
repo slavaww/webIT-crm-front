@@ -36,9 +36,42 @@ const TaskDetail = () => {
       }
 
       apiClient.get('/statuses')
-        .then(response => setStatuses(response.data['member'] || []))
+        .then(response => {
+          const allStatuses = response.data['member'] || [];
+          let filteredStatuses = allStatuses;
+
+          if (isRole.client) {
+            const excludedIds = [2, 3, 5];
+            filteredStatuses = allStatuses.filter(status => !excludedIds.includes(status.id));
+          } else if (isRole.admin) {
+            const excludedIds = [6];
+            filteredStatuses = allStatuses.filter(status => !excludedIds.includes(status.id));
+          }
+
+          setStatuses(filteredStatuses);
+        })
         .catch(() => setError('Не удалось загрузить статусы!'));
-  }, [id]);
+  }, []);
+
+  const handleFinishTask = async (completedStatusId) => {
+    if (window.confirm('Вы уверены?')) {
+      try {
+        const dataToPatch = {
+          endTime: completedStatusId,
+        };
+
+        const response = await apiClient.patch(`/tasks/${id}`, dataToPatch, {
+          headers: { 'Content-Type': 'application/merge-patch+json' }
+        });
+
+        // Обновляем состояние задачи
+        setTask(response.data);
+
+      } catch (err) {
+        setError('Ошибка при завершении задачи.');
+      }
+    }
+  };   
 
   const getStatusId = () => {
     if (task.status) {
@@ -107,51 +140,49 @@ const TaskDetail = () => {
           </div>
         </div>
         <div className="col-3">
-          <div className="task-detail__frame--def d-flex justify-content-between align-items-center">
-            {(isRole.client || isRole.superAdmin) && (
-              <>
-                <div className="task-detail__worker">
-                  <div className="task-detail__label">Исполнитель:</div>
-                  {task.worker?.user_id?.name && (
-                    <div className="task-detail__main-field">
-                      {task.worker?.user_id?.name} {task.worker?.user_id?.surname}
-                    </div>
-                  )}
-                  {!task.worker?.user_id?.name && (
-                    <div className="task-detail__no-worker">Не назначен</div>
-                  )}
-                  {task.worker?.job_title && (
-                    <div className="task-detail__sub-field">
-                      {task.worker?.job_title}
-                    </div>
-                  )}
-                </div>
-                {isRole.superAdmin && (
-                  <EditSVG
-                    context="worker"
-                    taskData={task}
-                    // onChange={(e) => setTask({ ...task, worker: e.target.value })}
-                    onChange={(e) => {
-                      const selectedWorkerIri = e.target.value;
-                      const selectedEmployee = employees.find(emp => `/api/employees/${emp.id}` === selectedWorkerIri);
-                      setTask({ ...task, worker: selectedEmployee || selectedWorkerIri });
-                    }}
-                    onSave={handleEditSave}
-                    showModal={activeModal === 'worker'}
-                    onHide={() => setActiveModal(null)}
-                    onShow={() => setActiveModal('worker')}
-                    selectData={employees}
-                  />
+          {(isRole.client || isRole.superAdmin) && (
+            <div className="task-detail__frame--def d-flex justify-content-between align-items-center">
+              <div className="task-detail__worker">
+                <div className="task-detail__label">Исполнитель:</div>
+                {task.worker?.user_id?.name && (
+                  <div className="task-detail__main-field">
+                    {task.worker?.user_id?.name} {task.worker?.user_id?.surname}
+                  </div>
                 )}
-              </>
-            )}
+                {!task.worker?.user_id?.name && (
+                  <div className="task-detail__no-worker">Не назначен</div>
+                )}
+                {task.worker?.job_title && (
+                  <div className="task-detail__sub-field">
+                    {task.worker?.job_title}
+                  </div>
+                )}
+              </div>
+              {isRole.superAdmin && (
+                <EditSVG
+                  context="worker"
+                  taskData={task}
+                  // onChange={(e) => setTask({ ...task, worker: e.target.value })}
+                  onChange={(e) => {
+                    const selectedWorkerIri = e.target.value;
+                    const selectedEmployee = employees.find(emp => `/api/employees/${emp.id}` === selectedWorkerIri);
+                    setTask({ ...task, worker: selectedEmployee || selectedWorkerIri });
+                  }}
+                  onSave={handleEditSave}
+                  showModal={activeModal === 'worker'}
+                  onHide={() => setActiveModal(null)}
+                  onShow={() => setActiveModal('worker')}
+                  selectData={employees}
+                />
+              )}
+            </div>
+          )}
             {isRole.admin && (
-              <>
-                <div className="task-detail__label">Клиент:</div>
-                <div className="task-detail__main-field">{task.client?.title}</div>
-              </>
+              <div className="task-detail__frame--def d-flex flex-column">
+                <div className="task-detail__label mb-2">Клиент:</div>
+                <div className="task-detail__main-field mb-2">{task.client?.title}</div>
+              </div>
             )}
-          </div>
         </div>
       </div>
       <div className="row mt-4">
@@ -175,7 +206,13 @@ const TaskDetail = () => {
         </div>
         <div className="col-3">
           <div className="d-flex flex-column h-100">
-            <div className="task-detail__frame--def mb-4">
+            {isRole.superAdmin && (
+              <div className="task-detail__frame--def mb-3">
+                <div className="task-detail__label">Клиент:</div>
+                <div className="task-detail__main-field">{task.client?.title}</div>
+              </div>
+            )}
+            <div className="task-detail__frame--def mb-3">
               <div className="task-detail__label">Создана:</div>
               <div className="task-detail__main-field">
                 {new Date(task.create_date).toLocaleDateString()}
@@ -184,23 +221,30 @@ const TaskDetail = () => {
                 {task.creator?.name}{" "}{task.creator?.surname}
               </div>
             </div>
-            <div className={`task-detail__frame--def mb-4${classColorTaskEnd()}`}>
+            <div className={`task-detail__frame--def mb-3${classColorTaskEnd()}`}>
               {task.start_time && task.end_time && (
                 <div className="task-detail__label">Начата:{" "}{new Date(task.start_time).toLocaleString()}</div>
               )}
               {task.end_time && (
-                <div className="task-detail__main-field">Дата окончания: <strong>{new Date(task.end_time).toLocaleString()}</strong></div>
+                <div className="d-flex justify-content-between align-items-center">
+                  <div className="task-detail__main-field">Окончена: <strong>{new Date(task.end_time).toLocaleString()}</strong></div>
+                  <Button
+                    variant="primary"
+                    onClick={() => handleFinishTask(2)}
+                  >Возобновить</Button>
+                </div>
               )}
               {!task.end_time && (
                 <div className="d-flex justify-content-between align-items-center">
                   <div className="task-detail__main-field">В работе</div>
                   <Button
                     variant="danger"
+                    onClick={() => handleFinishTask(1)}
                   >Завершить</Button>
                 </div>
               )}
             </div>
-            <div className="task-detail__frame--def mb-4">Время:</div>
+            <div className="task-detail__frame--def mb-3">Время:</div>
             <div className="task-detail__frame--def mt-auto d-flex justify-content-between align-items-center">
               <span>
                 <strong>Статус:</strong>{" "}<span className={`status-field status-${getStatusId()}`}>{task.status?.status}</span>

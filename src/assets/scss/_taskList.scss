@@ -5,8 +5,15 @@
             --bs-emphasis-color: #{$textColor};
             --bs-border-color: #{$borderColor};
 
+            tr:last-of-type {
+                td {
+                    border-style: none;
+                }
+            }
+
             td {
                 font-size: 14px;
+                vertical-align: middle;
             }
         }
     }
@@ -28,10 +35,10 @@
             color: $red-300;
         }
         &-6 {
-            color: $gray-500;
+            color: var(--bs-success);
         }
         &-7 {
-            color: $gray-800;
+            color: var(--bs-info);
         }
     }
 
@@ -62,10 +69,10 @@
                     background-color: $red-400;
                 }
                 &-6 {
-                    background-color: $gray-500;
+                    background-color: var(--bs-success);
                 }
                 &-7 {
-                    background-color: $gray-800;
+                    background-color: var(--bs-info);
                 }
             }
         }
