@@ -40,7 +40,8 @@
     }
 
     &__description {
-        background-color: $frameDescrBgColor;
+        background-color: var(--bs-white);
+        border: 3px solid $frameDescrBgColor;
         border-radius: 6px;
         padding: 24px 32px;
         height: 100%;

@@ -32,7 +32,7 @@ const ImageUploadButton = ({ onImageUpload, onInsert }) => {
 
   return (
     <>
-      <Button variant="light" onClick={handleClick} size="sm">
+      <Button variant="dark" onClick={handleClick} size="sm">
         <i className="bi bi-image"></i> Вставить изображение
       </Button>
       <input

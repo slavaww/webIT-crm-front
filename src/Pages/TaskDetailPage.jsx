@@ -5,12 +5,15 @@ import { Button } from "react-bootstrap";
 import EditSVG from "../Components/EditSVG";
 import { isRole } from '../utils/isRole';
 import CommentsAll from '../Components/CommentsAll';
+import MDEditor from "@uiw/react-md-editor";
 
 const TaskDetail = () => {
   const { id } = useParams(); // Получаем ID задачи из URL
   const [task, setTask] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [activeModal, setActiveModal] = useState(null); // null | 'title' | 'description' | 'worker'
+  const [employees, setEmployees] = useState();
 
   useEffect(() => {
     // Загрузка детальной задачи
@@ -24,6 +27,12 @@ const TaskDetail = () => {
         setError("Не удалось загрузить задачу.");
         setLoading(false);
       });
+
+      if (isRole.superAdmin) {
+        apiClient.get('/employees')
+          .then(response => setEmployees(response.data['member'] || []))
+          .catch(() => setError('Не удалось загрузить сотрудников!'));
+      }
   }, [id]);
 
   const getStatusId = () => {
@@ -40,6 +49,31 @@ const TaskDetail = () => {
     return '';
   };
 
+  const handleEditSave = async () => {
+    try {
+      let valueToPatch = task[activeModal];
+
+      // Если мы редактируем связь (например, 'worker'), нам нужно отправить его IRI, а не весь объект.
+      if (activeModal === 'worker' && typeof valueToPatch === 'object' && valueToPatch !== null) {
+        valueToPatch = `/api/employees/${valueToPatch.id}`;
+      }
+
+      // Отправляем только измененные данные
+      const dataToPatch = {
+        [activeModal]: valueToPatch
+      };
+      
+      await apiClient.patch(`/tasks/${id}`, dataToPatch, {
+        headers: { 'Content-Type': 'application/merge-patch+json' }
+      });
+
+      setActiveModal(null); // Закрываем модальное окно после успешного сохранения
+
+    } catch (err) {
+      setError('Ошибка при обновлении задачи.');
+    }
+  };
+
   if (loading) return <div>Загрузка...</div>;
   if (error) return <div className="alert alert-danger">{error}</div>;
   if (!task) return <div>Задача не найдена.</div>;
@@ -50,7 +84,15 @@ const TaskDetail = () => {
         <div className="col-9">
           <div className="task-detail__header d-flex justify-content-between align-items-center">
             <h2>{task.title}</h2>
-            <EditSVG />
+            <EditSVG
+              context="title"
+              taskData={task}
+              onChange={(e) => setTask({ ...task, title: e.target.value })}
+              onSave={handleEditSave}
+              showModal={activeModal === 'title'}
+              onHide={() => setActiveModal(null)}
+              onShow={() => setActiveModal('title')}
+            />
           </div>
         </div>
         <div className="col-3">
@@ -73,8 +115,22 @@ const TaskDetail = () => {
                     </div>
                   )}
                 </div>
-                {isRole.admin && (
-                  <EditSVG />
+                {isRole.superAdmin && (
+                  <EditSVG
+                    context="worker"
+                    taskData={task}
+                    // onChange={(e) => setTask({ ...task, worker: e.target.value })}
+                    onChange={(e) => {
+                      const selectedWorkerIri = e.target.value;
+                      const selectedEmployee = employees.find(emp => `/api/employees/${emp.id}` === selectedWorkerIri);
+                      setTask({ ...task, worker: selectedEmployee || selectedWorkerIri });
+                    }}
+                    onSave={handleEditSave}
+                    showModal={activeModal === 'worker'}
+                    onHide={() => setActiveModal(null)}
+                    onShow={() => setActiveModal('worker')}
+                    employees={employees}
+                  />
                 )}
               </>
             )}
@@ -89,7 +145,19 @@ const TaskDetail = () => {
       </div>
       <div className="row mt-4">
         <div className="col-9">
-          <div className="task-detail__description d-flex justify-content-between">{task.description}<EditSVG /></div>
+          <div className="task-detail__description d-flex justify-content-between align-items-start">
+            <MDEditor.Markdown source={task.description} />
+            <EditSVG
+              color="#4E4F79"
+              onHide={() => setActiveModal(null)}
+              onShow={() => setActiveModal('description')}
+              context="description"
+              taskData={task}
+              onChange={(value) => setTask({ ...task, description: value })}
+              onSave={handleEditSave}
+              showModal={activeModal === 'description'}
+            />
+          </div>
         </div>
         <div className="col-3">
           <div className="d-flex flex-column h-100">

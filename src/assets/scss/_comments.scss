@@ -1,0 +1,11 @@
+.comments-block {
+    background-color: var(--bs-white);
+    border-radius: 6px;
+    color: var(--bs-primary-text-emphasis);
+    padding: 24px;
+
+    .list-group {
+        --bs-list-group-bg: var(--bs-white);
+        --bs-list-group-color: var(--bs-black);
+    }
+}
