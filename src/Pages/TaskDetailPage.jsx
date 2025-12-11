@@ -14,6 +14,7 @@ const TaskDetail = () => {
   const [error, setError] = useState(null);
   const [activeModal, setActiveModal] = useState(null); // null | 'title' | 'description' | 'worker'
   const [employees, setEmployees] = useState();
+  const [statuses, setStatuses] = useState();
 
   useEffect(() => {
     // Загрузка детальной задачи
@@ -33,6 +34,10 @@ const TaskDetail = () => {
           .then(response => setEmployees(response.data['member'] || []))
           .catch(() => setError('Не удалось загрузить сотрудников!'));
       }
+
+      apiClient.get('/statuses')
+        .then(response => setStatuses(response.data['member'] || []))
+        .catch(() => setError('Не удалось загрузить статусы!'));
   }, [id]);
 
   const getStatusId = () => {
@@ -56,6 +61,10 @@ const TaskDetail = () => {
       // Если мы редактируем связь (например, 'worker'), нам нужно отправить его IRI, а не весь объект.
       if (activeModal === 'worker' && typeof valueToPatch === 'object' && valueToPatch !== null) {
         valueToPatch = `/api/employees/${valueToPatch.id}`;
+      }
+
+      if (activeModal === 'status' && typeof valueToPatch === 'object' && valueToPatch !== null) {
+        valueToPatch = valueToPatch['@id'];
       }
 
       // Отправляем только измененные данные
@@ -84,15 +93,17 @@ const TaskDetail = () => {
         <div className="col-9">
           <div className="task-detail__header d-flex justify-content-between align-items-center">
             <h2>{task.title}</h2>
-            <EditSVG
-              context="title"
-              taskData={task}
-              onChange={(e) => setTask({ ...task, title: e.target.value })}
-              onSave={handleEditSave}
-              showModal={activeModal === 'title'}
-              onHide={() => setActiveModal(null)}
-              onShow={() => setActiveModal('title')}
-            />
+            {(isRole.superAdmin || isRole.client) && (
+              <EditSVG
+                context="title"
+                taskData={task}
+                onChange={(e) => setTask({ ...task, title: e.target.value })}
+                onSave={handleEditSave}
+                showModal={activeModal === 'title'}
+                onHide={() => setActiveModal(null)}
+                onShow={() => setActiveModal('title')}
+              />
+            )}
           </div>
         </div>
         <div className="col-3">
@@ -129,7 +140,7 @@ const TaskDetail = () => {
                     showModal={activeModal === 'worker'}
                     onHide={() => setActiveModal(null)}
                     onShow={() => setActiveModal('worker')}
-                    employees={employees}
+                    selectData={employees}
                   />
                 )}
               </>
@@ -147,16 +158,19 @@ const TaskDetail = () => {
         <div className="col-9">
           <div className="task-detail__description d-flex justify-content-between align-items-start">
             <MDEditor.Markdown source={task.description} />
-            <EditSVG
-              color="#4E4F79"
-              onHide={() => setActiveModal(null)}
-              onShow={() => setActiveModal('description')}
-              context="description"
-              taskData={task}
-              onChange={(value) => setTask({ ...task, description: value })}
-              onSave={handleEditSave}
-              showModal={activeModal === 'description'}
-            />
+            {(( isRole.admin && (task.worker?.user_id['@id'] == task.creator['@id']) ) || isRole.superAdmin || isRole.client) 
+            && (
+              <EditSVG
+                color="#4E4F79"
+                onHide={() => setActiveModal(null)}
+                onShow={() => setActiveModal('description')}
+                context="description"
+                taskData={task}
+                onChange={(value) => setTask({ ...task, description: value })}
+                onSave={handleEditSave}
+                showModal={activeModal === 'description'}
+              />
+            )}
           </div>
         </div>
         <div className="col-3">
@@ -187,7 +201,25 @@ const TaskDetail = () => {
               )}
             </div>
             <div className="task-detail__frame--def mb-4">Время:</div>
-            <div className="task-detail__frame--def mt-auto"><strong>Статус:</strong> <span className={`status-field status-${getStatusId()}`}>{task.status?.status}</span></div>
+            <div className="task-detail__frame--def mt-auto d-flex justify-content-between align-items-center">
+              <span>
+                <strong>Статус:</strong>{" "}<span className={`status-field status-${getStatusId()}`}>{task.status?.status}</span>
+              </span>
+              <EditSVG
+                context="statuses"
+                taskData={task}
+                onChange={(e) => {
+                  const selectedStatusIri = e.target.value;
+                  const selectedStatuses = statuses.find(emp => `/api/statuses/${emp.id}` === selectedStatusIri);
+                  setTask({ ...task, status: selectedStatuses || selectedStatusIri });
+                }}
+                onSave={handleEditSave}
+                showModal={activeModal === 'status'}
+                onHide={() => setActiveModal(null)}
+                onShow={() => setActiveModal('status')}
+                selectData={statuses}
+              />
+            </div>
           </div>
         </div>
       </div>

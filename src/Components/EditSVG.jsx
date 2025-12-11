@@ -3,7 +3,7 @@ import MDEditor from "@uiw/react-md-editor";
 import ImageUploadButton from "./ImageUploadButton";
 import { useImageUpload } from "../hooks/useImageUpload";
 
-const EditSVG = ({width = 24, height = 24, color = '#FEF7FF', context = null, taskData = null, showModal = false, onHide, onShow, onChange = null, onSave = null, employees = []}) => {
+const EditSVG = ({width = 24, height = 24, color = '#FEF7FF', context = null, taskData = null, showModal = false, onHide, onShow, onChange = null, onSave = null, selectData = []}) => {
 
     let valueField = '';
     let formType = '';
@@ -44,6 +44,21 @@ const EditSVG = ({width = 24, height = 24, color = '#FEF7FF', context = null, ta
                 label = 'Исполнитель:';
                 break;
 
+            case "statuses":
+                // Если worker - это объект, берем его IRI. Если это уже строка (или null/undefined), используем как есть.
+                if (typeof taskData?.status === 'object' && taskData.status !== null) {
+                    valueField = taskData.status['@id'];
+                    //  || `/api/statuses/${taskData.status.id}`;
+                } else {
+                    // Если это строка (IRI) или null/undefined
+                    valueField = taskData?.status || '';
+                }
+
+                fieldName = 'status';
+                formType = 'status';
+                label = 'Статус задачи:';
+                break;
+
             default:
                 valueField = taskData?.title || '';
                 fieldName = 'title';
@@ -69,8 +84,16 @@ const EditSVG = ({width = 24, height = 24, color = '#FEF7FF', context = null, ta
                             {formType == 'select' && (
                                 <Form.Select name={fieldName} value={valueField} onChange={onChange} required autoFocus>
                                     <option value="">Выберите исполнителя</option>
-                                    {employees.map(employee => (
-                                        <option key={employee.id} value={employee['@id']}>{employee.user_id.name} {employee.user_id.surname}</option>
+                                    {selectData.map(selected => (
+                                        <option key={selected.id} value={selected['@id']}>{selected.user_id?.name} {selected.user_id?.surname}</option>
+                                    ))}
+                                </Form.Select>
+                            )}
+                            {formType == 'status' && (
+                                <Form.Select name={fieldName} value={valueField} onChange={onChange} required autoFocus>
+                                    <option value="">Выберите статус задачи</option>
+                                    {selectData.map(selected => (
+                                        <option key={selected.id} value={selected['@id']}>{selected?.status}</option>
                                     ))}
                                 </Form.Select>
                             )}
