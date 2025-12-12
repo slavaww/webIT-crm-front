@@ -16,8 +16,23 @@
             padding: 16px 32px;
         }
 
-        &--at-work {
-            background-color: #268E0C;
+        &--in-progress {
+            background-color: $atWorkColor;
+        }
+        &--created {
+            background-color: var(--status-one-color);
+        }
+        &--paused {
+            background-color: var(--status-four-color);
+        }
+        &--review {
+            background-color: var(--status-five-color);
+        }
+        &--completed {
+            background-color: $atWorkColor;
+        }
+        &--canceled {
+            background-color: $gray-800;
         }
     }
 

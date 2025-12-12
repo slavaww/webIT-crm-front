@@ -1,6 +1,11 @@
 :root {
     --task-detail-header-bg: #{$headerFrameBgColor};
     --task-detail-frame-bg: #{$frameDefBgColor};
+    --status-one-color: #{$yellow-500};
+    --status-two-color: #{$yellow-200};
+    --status-three-color: #{$atWorkColor};
+    --status-four-color: #{$red-500};
+    --status-five-color: #{$red-300};
 }
 #root {
     width: 100dvw;

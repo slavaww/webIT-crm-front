@@ -1,7 +1,7 @@
 import React from "react";
 import { Button } from "react-bootstrap";
 
-const ImageUploadButton = ({ onImageUpload, onInsert }) => {
+const ImageUploadButton = ({ onImageUpload, onInsert, size = "sm", variant = "dark" }) => {
   const fileInputRef = React.useRef(null);
 
   const handleClick = () => {
@@ -32,7 +32,7 @@ const ImageUploadButton = ({ onImageUpload, onInsert }) => {
 
   return (
     <>
-      <Button variant="dark" onClick={handleClick} size="sm">
+      <Button variant={variant} onClick={handleClick} size={size}>
         <i className="bi bi-image"></i> Вставить изображение
       </Button>
       <input

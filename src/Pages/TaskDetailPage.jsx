@@ -84,11 +84,44 @@ const TaskDetail = () => {
 
   const classColorTaskEnd = () => {
     if (!task.end_time) {
-      return ' task-detail__frame--at-work';
+      if (getStatusId() === '1') {
+        return ' task-detail__frame--created';
+      } else if (getStatusId() === '2' || getStatusId() === '3') {
+        return ' task-detail__frame--in-progress';
+      } else if (getStatusId() === '4') {
+        return ' task-detail__frame--paused';
+      } else if (getStatusId() === '5') {
+        return ' task-detail__frame--review';
+      } else if (getStatusId() === '6') {
+        return ' task-detail__frame--completed';
+      }
+      return ' task-detail__frame--canceled';
     }
 
     return '';
   };
+
+  const workingMessage = () => {
+    switch (getStatusId()) {
+      case '1':
+        return 'Ожидает начала';
+      case '2':
+      case '3':
+        return 'В работе';
+      
+      case '4':
+        return 'На паузе';
+      
+      case '5':
+        return 'Ожидает проверки';
+      
+      case '6':
+        return 'Завершена';
+        
+      default:
+        return 'Завершена';
+    }
+  }
 
   const handleEditSave = async () => {
     try {
@@ -239,7 +272,7 @@ const TaskDetail = () => {
               )}
               {!task.end_time && (
                 <div className="d-flex justify-content-between align-items-center">
-                  <div className="task-detail__main-field">В работе</div>
+                  <div className="task-detail__main-field">{workingMessage()}</div>
                   <Button
                     variant="danger"
                     onClick={() => handleFinishTask(1)}

@@ -112,10 +112,14 @@ const EditSVG = ({width = 24, height = 24, color = '#FEF7FF', context = null, ta
                 </Modal.Body>
                 <Modal.Footer>
                     {formType == 'textarea' && (
-                        <ImageUploadButton 
-                            onImageUpload={uploadImage}
-                            onInsert={(markdown) => onChange(valueField + '\n' + markdown)}
-                        />
+                        <div className="me-auto">
+                            <ImageUploadButton 
+                                size='md'
+                                variant="outline-light"
+                                onImageUpload={uploadImage}
+                                onInsert={(markdown) => onChange(valueField + '\n' + markdown)}
+                            />
+                        </div>
                     )}
                     <Button variant="secondary" onClick={onHide}>Закрыть</Button>
                     <Button variant="primary" onClick={onSave}>Сохранить</Button>
