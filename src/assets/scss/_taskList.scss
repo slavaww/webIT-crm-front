@@ -98,6 +98,12 @@
 }
 
 .filter {
+    &-in-progress {
+        padding: 15px 18px;
+        border: 1px solid $borderColor;
+        border-radius: 12px;
+    }
+
     &-statuses {
         padding: 15px 18px;
         border: 1px solid $borderColor;

@@ -119,7 +119,7 @@ const HomePage = () => {
       <div className="py-2 px-2 px-md-4 px-lg-5 d-lg-flex justify-content-between align-items-center task_list_header">
         <h2>Задачи</h2>
         <div className="task-list-filter">
-          <div className="align-self-end">
+          <div className="align-self-end filter-in-progress">
             <Form.Check
               type="switch"
               id="in-progress-switch"
@@ -127,15 +127,13 @@ const HomePage = () => {
               checked={inProgress}
               onChange={() => {setInProgress(inProgress ? false : true); setIsClosed(true)}}
             />
-            {!inProgress && (
-              <Form.Check
-                type="switch"
-                id="in-progress-switch"
-                label="Закрытые задачи"
-                checked={!isClosed}
-                onChange={() => setIsClosed(isClosed ? false : true)}
-              />
-            )}
+            <Form.Check
+              type="switch"
+              id="in-progress-switch"
+              label="Закрытые задачи"
+              checked={!isClosed}
+              onChange={() => {setIsClosed(isClosed ? false : true); setInProgress(false)}}
+            />
           </div>
 
           <FilterStatuses
