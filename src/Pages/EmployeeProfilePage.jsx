@@ -1,5 +1,8 @@
 import React, { useState, useEffect } from 'react';
+import { Form, Button } from 'react-bootstrap';
 import apiClient from '../api/axiosConfig';
+import UserProfileSection from '../Components/UserProfileSection'
+import AutoDismissAlert from '../Components/AutoDismissAlert';
 
 const EmployeeProfilePage = () => {
     const [userData, setUserData] = useState(null);
@@ -69,43 +72,40 @@ const EmployeeProfilePage = () => {
     if (error) return <div className="alert alert-danger">{error}</div>;
 
     return (
-        <div>
-            <h2>Личный кабинет сотрудника</h2>
-            {success && <div className="alert alert-success">{success}</div>}
-            
-            {/* Отображаем аватар */}
-            {userData?.avatar && (
-                <div className="mb-4 text-center">
-                    <img src={userData.avatar} alt="Аватар" className="rounded-circle" width="150" height="150" />
-                </div>
-            )}
+        <div className="container-fluid pt-4 px-4">
+            <h2>Личный кабинет</h2>
 
-            <form onSubmit={handleSubmit}>
-                <div className="mb-3">
-                    <label className="form-label">Имя</label>
-                    <input type="text" name="name" value={formData.name} onChange={handleChange} className="form-control" />
+            <Form onSubmit={handleSubmit}>
+                <div className="row">
+                    <UserProfileSection user={formData} onChange={handleChange} />
+                    <div className="col-6">
+                        {userData?.avatar && (
+                            <div className="mb-4 text-center">
+                                <img src={userData.avatar} alt="Аватар" className="rounded-circle" width="150" height="150" />
+                            </div>
+                        )}
+                        <Form.Group className="mb-3" controlId="avatar_url">
+                            <Form.Label>URL аватара</Form.Label>
+                            <Form.Control type="url" name="avatar_url" value={formData.avatar_url} onChange={handleChange} />
+                            <Form.Text className="text-muted">Укажите прямую ссылку на изображение. Если поле пустое, будет использован Gravatar.</Form.Text>
+                        </Form.Group>
+                    </div>
                 </div>
-                <div className="mb-3">
-                   <label className="form-label">Отчество</label>
-                   <input type="text" name="patronymic" value={formData.patronymic} onChange={handleChange} className="form-control" />
-               </div>
-                <div className="mb-3">
-                    <label className="form-label">Фамилия</label>
-                    <input type="text" name="surname" value={formData.surname} onChange={handleChange} className="form-control" />
-                </div>
-                <div className="mb-3">
-                    <label className="form-label">URL аватара</label>
-                    <input type="url" name="avatar_url" value={formData.avatar_url} onChange={handleChange} className="form-control" />
-                    <div className="form-text">Укажите прямую ссылку на изображение. Если поле пустое, будет использован Gravatar.</div>
-                </div>
-                <div className="mb-3">
-                    <label className="form-label">Новый пароль</label>
-                    <input type="password" name="password" value={formData.password} onChange={handleChange} className="form-control" placeholder="Оставьте пустым, если не меняете" />
-                </div>
-                <button type="submit" className="btn btn-primary" disabled={loading}>
+
+                <Form.Group className="mb-3" controlId="password">
+                    <Form.Label>Новый пароль</Form.Label>
+                    <Form.Control type="password" name="password" value={formData.password} onChange={handleChange} placeholder="Новый пароль" />
+                    <Form.Text className="text-muted">Оставьте поле пустым, если не меняете пароль.</Form.Text>
+                </Form.Group>
+                <AutoDismissAlert
+                    message={success}
+                    type="success"
+                    onDismiss={() => setSuccess(null)}
+                />
+                <Button type="submit" variant="primary" disabled={loading}>
                     {loading ? 'Сохранение...' : 'Сохранить'}
-                </button>
-            </form>
+                </Button>
+            </Form>
         </div>
     );
 };

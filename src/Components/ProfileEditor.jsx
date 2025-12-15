@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Button } from 'react-bootstrap';
+import { Button, Form } from 'react-bootstrap';
 import apiClient from '../api/axiosConfig';
 import UserProfileSection from './UserProfileSection';
 import ClientProfileSection from './ClientProfileSection';
@@ -169,7 +169,7 @@ export default function ProfileEditor({ clientId }) {
 
             {error && <div className="alert alert-danger">{error}</div>}
             
-            <form onSubmit={handleSubmit}>
+            <Form onSubmit={handleSubmit}>
                 <div className="row">
                     <ClientProfileSection profile={profile} onChange={handleChangeProfile} />
                     {/* Данные пользователя (ФИО) */}
@@ -201,7 +201,7 @@ export default function ProfileEditor({ clientId }) {
                         </Button>
                     </div>
                 </div>
-            </form>
+            </Form>
         </div>
     );
 }

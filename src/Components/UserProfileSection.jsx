@@ -1,22 +1,22 @@
-import React from 'react';
+import {Form} from 'react-bootstrap';
 
-const UserProfileSection = ({ user, onChange }) => {
+const UserProfileSection = ({ user, onChange, colSpan = 'col-6'}) => {
     if (!user) return null;
 
     return (
-        <div className="col-6">
-            <div className="mb-3">
-                <label htmlFor="name" className="form-label">Имя</label>
-                <input type="text" className="form-control" id="name" name="name" value={user.name || ''} onChange={onChange} />
-            </div>
-            <div className="mb-3">
-                <label htmlFor="patronymic" className="form-label">Отчество</label>
-                <input type="text" className="form-control" id="patronymic" name="patronymic" value={user.patronymic || ''} onChange={onChange} />
-            </div>
-            <div className="mb-3">
-                <label htmlFor="surname" className="form-label">Фамилия</label>
-                <input type="text" className="form-control" id="surname" name="surname" value={user.surname || ''} onChange={onChange} />
-            </div>
+        <div className={colSpan}>
+            <Form.Group className="mb-3" controlId="name">
+                <Form.Label>Имя</Form.Label>
+                <Form.Control type="text" className="form-control" name="name" value={user.name || ''} onChange={onChange} />
+            </Form.Group>
+            <Form.Group className="mb-3" controlId="patronymic">
+                <Form.Label>Отчество</Form.Label>
+                <Form.Control type="text" name="patronymic" value={user.patronymic || ''} onChange={onChange} />
+            </Form.Group>
+            <Form.Group className="mb-3" controlId="surname">
+                <Form.Label>Фамилия</Form.Label>
+                <Form.Control type="text" name="surname" value={user.surname || ''} onChange={onChange} />
+            </Form.Group>
         </div>
     );
 };

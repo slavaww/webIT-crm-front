@@ -2,7 +2,7 @@ import { Button } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
 import { formatTaskDate } from '../utils/dateFormat';
 
-const TaskList = ({ tasks, isRole, onDelete }) => {
+const TaskList = ({ tasks, isRole, onDelete, inProgress }) => {
   if (tasks.length === 0) return <div className="mt-3 mx-3 alert alert-danger">Нет задач для отображения.</div>;  
 
   const getStatusId = (statusUrl) => {
@@ -22,7 +22,13 @@ const TaskList = ({ tasks, isRole, onDelete }) => {
             <th className='task-list-client'>Клиент</th>
             }
             <th className='task-list-date-create'>Создана</th> 
-            <th className='d-none d-xl-table-cell task-list-date-start'>Дата начала<br />Дата окончания</th>
+            <th className='d-none d-xl-table-cell task-list-date-start'>Дата начала
+              {!inProgress && (
+                <>
+                  <br />Дата окончания
+                </>
+              )}
+            </th>
             <th className='d-none d-sm-table-cell task-list-status'>Статус</th>
             <th className='d-none d-lg-table-cell task-list-creator'>Создатель</th>
             {(isRole.client || isRole.superAdmin) && 
@@ -44,11 +50,15 @@ const TaskList = ({ tasks, isRole, onDelete }) => {
               <td>{formatTaskDate(task.create_date)}</td>
               <td className='d-none d-xl-table-cell task-list-date-start'> 
                   {task.start_time
-                      ? <>{formatTaskDate(task.start_time)}<br />{
-                          task.end_time 
-                          ? formatTaskDate(task.end_time) 
-                          : 'Не окончена'
-                      }</>
+                      ? 
+                        <>
+                          {formatTaskDate(task.start_time)}
+                          {!inProgress && (
+                            <>
+                              <br />{formatTaskDate(task.end_time)}
+                            </>
+                          )}
+                        </>
                       : 'Не начата'
                   }
               </td>

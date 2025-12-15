@@ -1,16 +1,18 @@
 import React, { useState, useEffect } from 'react';
+import { Form } from 'react-bootstrap';
 import apiClient from '../api/axiosConfig';
 import { isRole } from '../utils/isRole';
 import TaskList from '../Components/TaskList';
 import FilterWorker from '../Components/FilterWorker';
 import FilterCreate from '../Components/FilterCreate';
 import FilterStatuses from '../Components/FilterStatuses';
-// import { Button } from 'react-bootstrap';
 
 const HomePage = () => {
   const [tasks, setTasks] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [inProgress, setInProgress] = useState(true);
+  const [isClosed, setIsClosed] = useState(true);
 
   const [clients, setClients] = useState([]);
   const [statuses, setStatuses] = useState([]);
@@ -59,6 +61,12 @@ const HomePage = () => {
     if (clientFilter) {
       params.append('client', clientFilter);
     }
+    if (!inProgress) {
+      params.append('inProgress', "all");
+    }
+    if (!isClosed) {
+      params.append('inProgress', "1");
+    }
 
     const queryString = params.toString();
     
@@ -71,7 +79,7 @@ const HomePage = () => {
       .catch(err => setError('Не удалось загрузить список задач.'))
       .finally(() => setLoading(false));
 
-  }, [statusFilter, startDateFilter, endDateFilter, workerFilter, clientFilter]); // Зависимости: все наши фильтры
+  }, [statusFilter, startDateFilter, endDateFilter, workerFilter, clientFilter, inProgress, isClosed]); // Зависимости: все наши фильтры
 
   const handleFilter = (clickedStatusId) => {
     let newFilter;
@@ -111,6 +119,25 @@ const HomePage = () => {
       <div className="py-2 px-2 px-md-4 px-lg-5 d-lg-flex justify-content-between align-items-center task_list_header">
         <h2>Задачи</h2>
         <div className="task-list-filter">
+          <div className="align-self-end">
+            <Form.Check
+              type="switch"
+              id="in-progress-switch"
+              label="Действующие"
+              checked={inProgress}
+              onChange={() => {setInProgress(inProgress ? false : true); setIsClosed(true)}}
+            />
+            {!inProgress && (
+              <Form.Check
+                type="switch"
+                id="in-progress-switch"
+                label="Закрытые задачи"
+                checked={!isClosed}
+                onChange={() => setIsClosed(isClosed ? false : true)}
+              />
+            )}
+          </div>
+
           <FilterStatuses
             statuses={statuses}
             statusFilter={statusFilter}
@@ -145,6 +172,7 @@ const HomePage = () => {
         isRole={isRole}
         // onEdit={handleEdit} 
         onDelete={handleDelete}
+        inProgress={inProgress}
       />
     </div>
   );
