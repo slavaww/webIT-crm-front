@@ -216,7 +216,9 @@ const TaskDetail = () => {
             {isRole.admin && (
               <div className="task-detail__frame--def d-flex flex-column">
                 <div className="task-detail__label mb-2">Клиент:</div>
-                <div className="task-detail__main-field mb-2">{task.client?.title}</div>
+                <div className="task-detail__main-field mb-2">
+                  {task.client ? task.client.title : 'Внутренняя задача'}
+                </div>
               </div>
             )}
         </div>
