@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import apiClient from "../api/axiosConfig";
 import { Button } from "react-bootstrap";
+import MDEditor from "@uiw/react-md-editor";
+import apiClient from "../api/axiosConfig";
 import EditSVG from "../Components/EditSVG";
 import { isRole } from '../utils/isRole';
-import CommentsAll from '../Components/CommentsAll';
-import MDEditor from "@uiw/react-md-editor";
+import CommentsAll from '../Components/CommentsAll'; 
+import { confirmModal } from '../services/modalService';
 
 const TaskDetail = () => {
   const { id } = useParams(); // Получаем ID задачи из URL
@@ -55,7 +56,13 @@ const TaskDetail = () => {
   }, []);
 
   const handleFinishTask = async (completedStatusId) => {
-    if (window.confirm('Вы уверены?')) {
+    const isConfirmed = await confirmModal({
+      title: "Подтвердите закрытие",
+      message: "Вы уверены, что хотите завершить эту задачу?",
+      confirmButtonVariant: "primary",
+      confirmButtonText: "Завершить задачу"
+    });
+    if (isConfirmed) {
       try {
         const dataToPatch = {
           endTime: completedStatusId,
@@ -154,7 +161,15 @@ const TaskDetail = () => {
   };
 
   const handleDeleteTask = async () => {
-    if (window.confirm('Вы уверены? Имейте ввиду, что нельзя удалять задучу, в которой есть комментарии')) {
+    const isConfirmed = await confirmModal({
+      title: "Подтвердите удаление",
+      message: "Вы уверены, что хотите удалить эту задачу?",
+      additionalMessage: "Это действие необратимо. Задачи с комментариями удалить нельзя.",
+      confirmButtonVariant: "danger",
+      confirmButtonText: "Удалить"
+    });
+
+    if (isConfirmed) {
       try {
         await apiClient.delete(`/tasks/${id}`);
         navigate('/');
@@ -297,8 +312,8 @@ const TaskDetail = () => {
             <div className="task-detail__frame--def mb-3">Время:</div>
             {( (isRole.superAdmin || isRole.client
               || (isRole.admin && (task.worker?.user_id['@id'] == task.creator['@id']))) 
-              && ( getStatusId() == 1) ) && (
-                <div className="task-detail__frame--def mb-3"><Button variant="danger" onClick={() => handleDeleteTask()}>Удалить задачу</Button></div>
+              && ( getStatusId() === '1') ) && (
+                <div className="task-detail__frame--def mb-3"><Button variant="danger" onClick={handleDeleteTask}>Удалить задачу</Button></div>
             )}
             <div className="task-detail__frame--def mt-auto d-flex justify-content-between align-items-center">
               <span>

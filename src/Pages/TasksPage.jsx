@@ -6,6 +6,7 @@ import TaskList from '../Components/TaskList';
 import FilterWorker from '../Components/FilterWorker';
 import FilterCreate from '../Components/FilterCreate';
 import FilterStatuses from '../Components/FilterStatuses';
+import { confirmModal } from '../services/modalService';
 
 const HomePage = () => {
   const [tasks, setTasks] = useState([]);
@@ -101,7 +102,14 @@ const HomePage = () => {
   };
 
   const handleDelete = async (id) => {
-    if (window.confirm('Вы уверены?')) {
+    const isConfirmed = await confirmModal({
+      title: "Подтвердите удаление",
+      message: "Вы уверены, что хотите удалить эту задачу?",
+      additionalMessage: "Это действие необратимо. Задачи с комментариями удалить нельзя.",
+      confirmButtonVariant: "danger",
+      confirmButtonText: "Удалить"
+    });
+    if (isConfirmed) {
       try {
         await apiClient.delete(`/tasks/${id}`);
         setTasks(tasks.filter(t => t.id !== id));
