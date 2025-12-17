@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import apiClient from "../api/axiosConfig";
 import { Button } from "react-bootstrap";
 import EditSVG from "../Components/EditSVG";
@@ -15,6 +15,7 @@ const TaskDetail = () => {
   const [activeModal, setActiveModal] = useState(null); // null | 'title' | 'description' | 'worker'
   const [employees, setEmployees] = useState();
   const [statuses, setStatuses] = useState();
+  const navigate = useNavigate();
 
   useEffect(() => {
     // Загрузка детальной задачи
@@ -152,6 +153,17 @@ const TaskDetail = () => {
     }
   };
 
+  const handleDeleteTask = async () => {
+    if (window.confirm('Вы уверены? Имейте ввиду, что нельзя удалять задучу, в которой есть комментарии')) {
+      try {
+        await apiClient.delete(`/tasks/${id}`);
+        navigate('/');
+      } catch (err) {
+        setError('Ошибка при удалении задачи.');
+      }
+    }
+  };
+
   if (loading) return <div>Загрузка...</div>;
   if (error) return <div className="alert alert-danger">{error}</div>;
   if (!task) return <div>Задача не найдена.</div>;
@@ -283,6 +295,11 @@ const TaskDetail = () => {
               )}
             </div>
             <div className="task-detail__frame--def mb-3">Время:</div>
+            {( (isRole.superAdmin || isRole.client
+              || (isRole.admin && (task.worker?.user_id['@id'] == task.creator['@id']))) 
+              && ( getStatusId() == 1) ) && (
+                <div className="task-detail__frame--def mb-3"><Button variant="danger" onClick={() => handleDeleteTask()}>Удалить задачу</Button></div>
+            )}
             <div className="task-detail__frame--def mt-auto d-flex justify-content-between align-items-center">
               <span>
                 <strong>Статус:</strong>{" "}<span className={`status-field status-${getStatusId()}`}>{task.status?.status}</span>
