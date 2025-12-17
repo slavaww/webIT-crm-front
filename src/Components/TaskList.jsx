@@ -10,7 +10,16 @@ const TaskList = ({ tasks, isRole, onDelete, inProgress }) => {
     return statusUrl.replace(/\/api\/statuses\//, '');
     // или: return statusUrl.split('/').pop();
   };
-  
+
+  const DisableDeleteTask = (id) => {
+    const task = tasks.find(t => t.id === id);
+    
+    if ( getStatusId(task.status["@id"]) > 1 ) {
+      return true;
+    }
+    return false;
+  }
+    
   return (
     <div className="task-list-wrapper px-1 px-md-2">
       <table className="table table-striped">
@@ -75,7 +84,7 @@ const TaskList = ({ tasks, isRole, onDelete, inProgress }) => {
               )}
                 {isRole.superAdmin && (
                   <td>
-                    <Button variant="danger" size="sm" className="ml-2" onClick={() => onDelete(task.id)}>Удалить</Button>
+                    <Button variant="danger" size="sm" className="ml-2" onClick={() => onDelete(task.id)} disabled={DisableDeleteTask(task.id)}>Удалить</Button>
                   </td>
                 )}
             </tr>
