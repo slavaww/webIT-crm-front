@@ -162,7 +162,7 @@ const TaskDetail = () => {
         <div className="col-9">
           <div className="task-detail__header d-flex justify-content-between align-items-center">
             <h2>{task.title}</h2>
-            {(isRole.superAdmin || isRole.client) && (
+            {(isRole.superAdmin || isRole.client || ( isRole.admin && (task.worker?.user_id['@id'] == task.creator['@id']) )) && (
               <EditSVG
                 context="title"
                 taskData={task}
