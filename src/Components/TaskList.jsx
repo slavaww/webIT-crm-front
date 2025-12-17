@@ -48,7 +48,7 @@ const TaskList = ({ tasks, isRole, onDelete, inProgress }) => {
                 <td className='task-list-client'>{task.client?.title || 'Внутренняя задача'}</td>
               )}
               <td>{formatTaskDate(task.create_date)}</td>
-              <td className='d-none d-xl-table-cell task-list-date-start'> 
+              <td className={`d-none d-xl-table-cell task-list-date-start${!task.start_time && " text-muted"}`}> 
                   {task.start_time
                       ? 
                         <>
@@ -68,7 +68,7 @@ const TaskList = ({ tasks, isRole, onDelete, inProgress }) => {
                 <td className='d-none d-md-table-cell task-list-worker'>
                   {(() => {
                     const employee = task.worker?.user_id;
-                    if (!employee) return 'Не назначен';
+                    if (!employee) return (<span className="text-muted">{"Не назначен"}</span>);
                     return `${employee.name} ${employee.surname}`;
                   })()}
                 </td>
