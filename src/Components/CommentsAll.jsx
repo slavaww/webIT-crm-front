@@ -32,6 +32,10 @@ const CommentsAll = ({id}) => {
         }
     };
 
+    const handleCommentDeleted = (deletedCommentId) => {
+        setComments(comments.filter(comment => comment.id !== deletedCommentId));
+    };
+
     useEffect(() => {
         // Загрузка комментариев
         apiClient
@@ -49,7 +53,7 @@ const CommentsAll = ({id}) => {
       <div className="comments-block mt-4">
         <h3 className="mb-4">Комментарии</h3>
         {comments.map((comment) => (
-          <CommentItem key={comment.id} comment={comment} />
+          <CommentItem key={comment.id} comment={comment} onCommentDeleted={handleCommentDeleted} />
         ))}
         {comments.length === 0 && <p>Нет комментариев.</p>}
 

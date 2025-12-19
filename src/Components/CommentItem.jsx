@@ -1,14 +1,41 @@
 import React, { useState, useEffect } from 'react';
-import { ListGroup } from 'react-bootstrap';
+import { ListGroup, Button } from 'react-bootstrap';
 import MDEditor from '@uiw/react-md-editor';
 import apiClient from '../api/axiosConfig';
 import { formatTaskDate } from '../utils/dateFormat';
 import { minutesToHours } from '../utils/minutesToHours';
 import LoadingLine from './LoadingLine';
+import EditSVG from "./EditSVG";
+import { isRole } from '../utils/isRole';
+import { getUserDataFromToken } from '../utils/authUtils';
+import { confirmModal } from '../services/modalService';
 
-const CommentItem = ({ comment }) => {
+const CommentItem = ({ comment, onCommentDeleted }) => {
     const [spendTime, setSpendTime] = useState(null);
+    const [currentComment, setCurrentComment] = useState(comment);
     const [loading, setLoading] = useState(false);
+    const [activeModal, setActiveModal] = useState(null);
+    const [error, setError] = useState(null);
+
+    const getIdFromIri = (iri) => {
+        const match = iri.match(/\d+$/);
+        return match ? parseInt(match[0], 10) : null;
+    };
+
+    const currentUser = getUserDataFromToken();
+    const isAuthor = () => {
+        if (isRole.superAdmin) {
+            return true;
+        }
+        if (isRole.admin) {
+            const empIri = comment.author?.employee ? comment.author?.employee['@id'] : '';
+            return currentUser.employeeId === getIdFromIri(empIri);
+        }
+        if (isRole.client) {
+            const clientIri = comment.author?.client ? comment.author?.client['@id'] : '';
+            return currentUser.clientId === getIdFromIri(clientIri);
+        }
+    };
 
     useEffect(() => {
         setLoading(true);
@@ -25,7 +52,49 @@ const CommentItem = ({ comment }) => {
             .finally(() => {
                 setLoading(false);
             });
-    }, [comment.id]);
+    }, [currentComment.id]);
+
+    const handleEditSave = async () => {
+        try {
+            const dataToPatch = {
+                description: currentComment.description
+            };
+
+            const response = await apiClient.patch(`/comments/${currentComment.id}`, dataToPatch, {
+                headers: { 'Content-Type': 'application/merge-patch+json' }
+            });
+
+            // Обновляем локальное состояние свежими данными с сервера
+            setCurrentComment(response.data);
+            setActiveModal(null);
+
+        } catch (err) {
+            setError('Ошибка при обновлении комментария.');
+        }
+    };
+
+    const handleDeleteComment = async () => {
+        const isConfirmed = await confirmModal({
+              title: "Подтвердите удаление",
+              message: "Вы уверены, что хотите удалить этот комментарий?",
+              additionalMessage: "Это действие необратимо. Комментарий с отметкой времени удалить нельзя.",
+              confirmButtonVariant: "danger",
+              confirmButtonText: "Удалить"
+        });
+        if (isConfirmed) {
+            apiClient.delete(`/comments/${comment.id}`)
+                .then(() => {
+                    if (onCommentDeleted) {
+                        onCommentDeleted(comment.id);
+                    }
+                })
+                .catch(err => {
+                    console.error(`Не удалось удалить комментарий ${comment.id}`, err);
+            });
+        }
+    };
+
+    if (!currentComment) return null;
 
     return (
         <ListGroup className="mb-3" key={comment.id}>
@@ -34,10 +103,31 @@ const CommentItem = ({ comment }) => {
                     <div className="comment-author">
                         {formatTaskDate(comment.created_at)} - <strong>{comment.author?.name} {comment.author?.surname}</strong> ({comment.author?.employee?.job_title || comment.author?.client?.title})
                     </div>
+                    {isAuthor() && (
+                        <div className='ms-1'>
+                            <EditSVG
+                                color="#4E4F79"
+                                context="description"
+                                taskData={currentComment}
+                                onChange={(value) => setCurrentComment({ ...currentComment, description: value })}
+                                onSave={handleEditSave}
+                                showModal={activeModal === 'comment'}
+                                onHide={() => setActiveModal(null)}
+                                onShow={() => setActiveModal('comment')}
+                            />
+                            <Button
+                                variant="danger"
+                                className='ms-2'
+                                onClick={handleDeleteComment}
+                            >
+                                <i className="bi bi-trash3"></i>
+                            </Button>
+                        </div>
+                    )}
                 </div>
             </ListGroup.Item>
             <ListGroup.Item>
-                <MDEditor.Markdown source={comment.description} />
+                <MDEditor.Markdown source={currentComment.description} />
             </ListGroup.Item>
             {loading  && <ListGroup.Item><LoadingLine /></ListGroup.Item>}
             {spendTime &&
