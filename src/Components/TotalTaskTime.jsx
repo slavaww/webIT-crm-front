@@ -16,14 +16,12 @@ const TotalTaskTime = ({ taskId, startTime="2025-01-01" }) => {
       params.append('task', taskId);
     }
 
-    console.log("task: ", taskId);
     params.append('total', 1);
     
     const queryString = params.toString();
 
     apiClient.get(`/time_spends${queryString ? `?${queryString}` : ''}`)
       .then(response => {
-        console.log("Response: ", response.data['member'][0] / 60 );
         setTotalTaskTime(minutesToHours(response.data['member'][0]));
       })
       .catch( (err) => {
@@ -32,7 +30,7 @@ const TotalTaskTime = ({ taskId, startTime="2025-01-01" }) => {
   }, [taskId, startTime]);
 
   return  <div className="total-time">
-            <i class="bi bi-hourglass-split"> </i> 
+            <i className="bi bi-hourglass-split"> </i> 
             <span className="total-hours">{totalTaskTime.hours}</span>
             <span className="total-hours-label"> ч. </span>
             <span className="total-minutes">{totalTaskTime.minutes}</span>
