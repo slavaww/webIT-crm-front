@@ -1,10 +1,10 @@
 import { useEffect, useState } from "react";
-import { ListGroup, Form, Button } from "react-bootstrap";
+import { Form, Button } from "react-bootstrap";
 import MDEditor from "@uiw/react-md-editor";
 import ImageUploadButton from "./ImageUploadButton";
-import { formatTaskDate } from "../utils/dateFormat";
 import apiClient from "../api/axiosConfig";
 import { useImageUpload } from "../hooks/useImageUpload";
+import CommentItem from "./CommentItem";
 
 const CommentsAll = ({id}) => {
     const [comments, setComments] = useState([]);
@@ -49,30 +49,7 @@ const CommentsAll = ({id}) => {
       <div className="comments-block mt-4">
         <h3 className="mb-4">Комментарии</h3>
         {comments.map((comment) => (
-          <ListGroup className="mb-3" key={comment.id}>
-            <ListGroup.Item>
-              <div className="d-flex justify-content-between align-items-center">
-                <div className="comment-author">
-                  {formatTaskDate(comment.created_at)}
-                  {" - "}
-                  <strong>
-                    {comment.author?.name} {comment.author?.surname}
-                  </strong>
-                  {" ("}
-                  {comment.author?.employee?.job_title ||
-                    comment.author?.client?.title}
-                  {")"}
-                </div>
-                <div className="comment-edit">
-                  {/* <EditSVG color="#000" /> */}
-                </div>
-              </div>
-            </ListGroup.Item>
-            <ListGroup.Item>
-              {/* {comment.description} */}
-              <MDEditor.Markdown source={comment.description} />
-            </ListGroup.Item>
-          </ListGroup>
+          <CommentItem key={comment.id} comment={comment} />
         ))}
         {comments.length === 0 && <p>Нет комментариев.</p>}
 
