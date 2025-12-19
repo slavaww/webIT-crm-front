@@ -7,6 +7,7 @@ import EditSVG from "../Components/EditSVG";
 import { isRole } from '../utils/isRole';
 import CommentsAll from '../Components/CommentsAll'; 
 import { confirmModal } from '../services/modalService';
+import TotalTaskTime from "../Components/TotalTaskTime";
 
 const TaskDetail = () => {
   const { id } = useParams(); // Получаем ID задачи из URL
@@ -309,7 +310,7 @@ const TaskDetail = () => {
                 </div>
               )}
             </div>
-            <div className="task-detail__frame--def mb-3">Время:</div>
+            <div className="task-detail__frame--def mb-3"><span className="text-muted">Затраченное время: </span><TotalTaskTime taskId={id} /></div>
             {( (isRole.superAdmin || isRole.client
               || (isRole.admin && (task.worker?.user_id['@id'] == task.creator['@id']))) 
               && ( getStatusId() === '1') ) && (
