@@ -53,7 +53,7 @@ const CommentItem = ({ comment, onCommentDeleted, onTimeUpdated }) => {
                 }
             })
             .catch(err => {
-                console.error(`Не удалось загрузить время для комментария ${comment.id}`, err);
+                // console.error(`Не удалось загрузить время для комментария ${comment.id}`, err);
                 setSpendTime(null); // Сбрасываем в случае ошибки
             })
             .finally(() => {
@@ -133,7 +133,9 @@ const CommentItem = ({ comment, onCommentDeleted, onTimeUpdated }) => {
                     </div>
                     {isAuthor() && (
                         <div className='ms-1'>
-                            <SetTimeSpend commentId={comment.id} onTimeSaved={handleTimeSaved} spendTime={spendTime} />
+                            {isRole.admin && (
+                                <SetTimeSpend commentId={comment.id} onTimeSaved={handleTimeSaved} spendTime={spendTime} />
+                            )}
                             <EditSVG
                                 color="#4E4F79"
                                 context="description"

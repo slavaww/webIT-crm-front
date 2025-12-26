@@ -59,6 +59,19 @@ const SetTimeSpend = ({ commentId, onTimeSaved, dataTooltip = 'Затрачен�
         }
     };
 
+    const handleDelete = async () => {
+        try {
+            await apiClient.delete(`/time_spends/${spendTime.id}`);
+            handleClose();
+            if (onTimeSaved) {
+                onTimeSaved();
+            }
+        } catch (err) {
+            setError('Не удалось удалить время. ' + (err.response?.data?.detail || 'Попробуйте снова.'));
+            console.error('Ошибка удаления времени:', err);
+        }
+    };
+
     return (
         <>
             <Button onClick={handleShow} variant="dark" data-tooltip={dataTooltip} data-placement={dataPlacement}>
@@ -78,6 +91,7 @@ const SetTimeSpend = ({ commentId, onTimeSaved, dataTooltip = 'Затрачен�
                     </Form>
                 </Modal.Body>
                 <Modal.Footer>
+                    <Button variant="danger" onClick={handleDelete} className='me-auto'>Удалить</Button>
                     <Button variant="secondary" onClick={handleClose}>Закрыть</Button>
                     <Button variant="primary" onClick={handleSave}>Сохранить</Button>
                 </Modal.Footer>
