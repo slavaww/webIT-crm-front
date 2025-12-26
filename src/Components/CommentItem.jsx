@@ -61,14 +61,10 @@ const CommentItem = ({ comment, onCommentDeleted, onTimeUpdated }) => {
             });
     };
 
-    // Новый обработчик, который будет передан в SetTimeSpend
-    // Он обновит время комментария и вызовет обновление общего времени
     const handleTimeSaved = () => {
-        // 1. Вызываем колбэк, который пришел "сверху", чтобы обновить общее время
         if (onTimeUpdated) {
             onTimeUpdated();
         }
-        // 2. Запускаем обновление времени для текущего комментария
         fetchSpendTime();
     };
 

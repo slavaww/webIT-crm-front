@@ -12,7 +12,6 @@ const SetTimeSpend = ({ commentId, onTimeSaved, dataTooltip = 'Затрачен�
     const handleClose = () => {
         setShowModal(false);
         setError(''); // Сбрасываем ошибку при закрытии
-        // setTime('00:00'); // Сбрасываем время
     };
 
     useEffect(() => {

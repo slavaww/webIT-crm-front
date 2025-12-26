@@ -18,11 +18,8 @@ const TaskDetail = () => {
   const [employees, setEmployees] = useState();
   const [statuses, setStatuses] = useState();
   const navigate = useNavigate();
-  // 1. Создаем состояние-триггер для обновления общего времени
   const [timeUpdateTrigger, setTimeUpdateTrigger] = useState(0);
 
-  // 2. Создаем функцию, которая будет изменять триггер.
-  //    Мы передадим ее вниз по цепочке компонентов.
   const handleTimeUpdate = () => {
     setTimeUpdateTrigger(prev => prev + 1); // Простое изменение значения для вызова useEffect
   };
@@ -234,7 +231,6 @@ const TaskDetail = () => {
                 <EditSVG
                   context="worker"
                   taskData={task}
-                  // onChange={(e) => setTask({ ...task, worker: e.target.value })}
                   onChange={(e) => {
                     const selectedWorkerIri = e.target.value;
                     const selectedEmployee = employees.find(emp => `/api/employees/${emp.id}` === selectedWorkerIri);
