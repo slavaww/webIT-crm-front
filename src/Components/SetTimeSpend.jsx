@@ -1,18 +1,28 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Button, Modal, Form} from 'react-bootstrap';
 import apiClient from '../api/axiosConfig';
 
-const SetTimeSpend = ({ commentId, onTimeSaved, dataTooltip = 'Затраченное время', dataPlacement = 'top' }) => {
+const SetTimeSpend = ({ commentId, onTimeSaved, dataTooltip = 'Затраченное время', dataPlacement = 'top', spendTime = null }) => {
     const [showModal, setShowModal] = useState(false);
     const [time, setTime] = useState('00:00');
     const [error, setError] = useState('');
+    const [isHasSpendTime, setIsHasSpendTime] = useState(false);
 
     const handleShow = () => setShowModal(true);
     const handleClose = () => {
         setShowModal(false);
         setError(''); // Сбрасываем ошибку при закрытии
-        setTime('00:00'); // Сбрасываем время
+        // setTime('00:00'); // Сбрасываем время
     };
+
+    useEffect(() => {
+        if (spendTime) {
+            const hours = spendTime.hours.toString().padStart(2, '0');
+            const minutes = spendTime.minutes.toString().padStart(2, '0');
+            setTime(`${hours}:${minutes}`);
+            setIsHasSpendTime(true);
+        }
+    }, [spendTime]);
 
     const handleSave = async () => {
         const [hours, minutes] = time.split(':').map(Number);
@@ -22,14 +32,22 @@ const SetTimeSpend = ({ commentId, onTimeSaved, dataTooltip = 'Затрачен�
             setError('Время должно быть больше нуля.');
             return;
         }
-
+            
         try {
-            const response = await apiClient.post('/time_spends', {
-                comment: `/api/comments/${commentId}`,
-                time_spend: totalMinutes
-            },
-            { headers: { "Content-Type": "application/ld+json" } }
-            );
+            if (isHasSpendTime) {
+                const response = await apiClient.patch(`/time_spends/${spendTime.id}`, 
+                    { time_spend: totalMinutes },
+                    { headers: { "Content-Type": "application/merge-patch+json" } }
+                );
+
+            } else {
+                const response = await apiClient.post('/time_spends', {
+                    comment: `/api/comments/${commentId}`,
+                    time_spend: totalMinutes
+                },
+                { headers: { "Content-Type": "application/ld+json" } }
+                );
+            }
             handleClose();
             // Вызываем колбэк после успешного сохранения
             if (onTimeSaved) {

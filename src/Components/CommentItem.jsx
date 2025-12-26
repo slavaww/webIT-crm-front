@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, use } from 'react';
 import { ListGroup, Button } from 'react-bootstrap';
 import MDEditor from '@uiw/react-md-editor';
 import apiClient from '../api/axiosConfig';
@@ -17,6 +17,7 @@ const CommentItem = ({ comment, onCommentDeleted, onTimeUpdated }) => {
     const [loading, setLoading] = useState(false);
     const [activeModal, setActiveModal] = useState(null);
     const [error, setError] = useState(null);
+    const [spendTimeId, setSpendTimeId] = useState(null);
 
     const getIdFromIri = (iri) => {
         const match = iri.match(/\d+$/);
@@ -40,12 +41,13 @@ const CommentItem = ({ comment, onCommentDeleted, onTimeUpdated }) => {
 
     const fetchSpendTime = () => {
         setLoading(true);
-        apiClient.get(`/time_spends?comment=${comment.id}&total=1`)
+        apiClient.get(`/time_spends?comment=${comment.id}`)
             .then(response => {
-                const totalMinutes = response.data['member'][0];
+                const totalMinutes = response.data['member'][0].time_spend;
                 // Сбрасываем время, если оно равно 0, чтобы не отображать "0 ч. 0 мин."
                 if (totalMinutes > 0) {
                     setSpendTime(minutesToHours(totalMinutes));
+                    setSpendTimeId(response.data['member'][0].id);
                 } else {
                     setSpendTime(null);
                 }
@@ -114,6 +116,12 @@ const CommentItem = ({ comment, onCommentDeleted, onTimeUpdated }) => {
         fetchSpendTime();
     }, [comment.id]); // Зависимость только от ID комментария
 
+    useEffect(() => {
+        if (spendTime && spendTimeId) {
+            spendTime.id = spendTimeId;
+        }
+    }, [spendTime, spendTimeId]);
+
     if (!currentComment) return null;
 
     return (
@@ -125,7 +133,7 @@ const CommentItem = ({ comment, onCommentDeleted, onTimeUpdated }) => {
                     </div>
                     {isAuthor() && (
                         <div className='ms-1'>
-                            <SetTimeSpend commentId={comment.id} onTimeSaved={handleTimeSaved} />
+                            <SetTimeSpend commentId={comment.id} onTimeSaved={handleTimeSaved} spendTime={spendTime} />
                             <EditSVG
                                 color="#4E4F79"
                                 context="description"
