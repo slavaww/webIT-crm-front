@@ -18,6 +18,14 @@ const TaskDetail = () => {
   const [employees, setEmployees] = useState();
   const [statuses, setStatuses] = useState();
   const navigate = useNavigate();
+  // 1. Создаем состояние-триггер для обновления общего времени
+  const [timeUpdateTrigger, setTimeUpdateTrigger] = useState(0);
+
+  // 2. Создаем функцию, которая будет изменять триггер.
+  //    Мы передадим ее вниз по цепочке компонентов.
+  const handleTimeUpdate = () => {
+    setTimeUpdateTrigger(prev => prev + 1); // Простое изменение значения для вызова useEffect
+  };
 
   useEffect(() => {
     // Загрузка детальной задачи
@@ -310,7 +318,7 @@ const TaskDetail = () => {
                 </div>
               )}
             </div>
-            <div className="task-detail__frame--def mb-3"><span className="text-muted">Затраченное время: </span><TotalTaskTime taskId={id} /></div>
+            <div className="task-detail__frame--def mb-3"><span className="text-muted">Затраченное время: </span><TotalTaskTime taskId={id} refreshTrigger={timeUpdateTrigger} /></div>
             {( (isRole.superAdmin || isRole.client
               || (isRole.admin && (task.worker?.user_id['@id'] == task.creator['@id']))) 
               && ( getStatusId() === '1') ) && (
@@ -339,7 +347,7 @@ const TaskDetail = () => {
         </div>
       </div>
 
-      <CommentsAll id={id} />
+      <CommentsAll id={id} onTimeUpdated={handleTimeUpdate} />
     </div>
   );
 };

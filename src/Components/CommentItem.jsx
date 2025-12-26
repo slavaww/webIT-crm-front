@@ -9,8 +9,9 @@ import EditSVG from "./EditSVG";
 import { isRole } from '../utils/isRole';
 import { getUserDataFromToken } from '../utils/authUtils';
 import { confirmModal } from '../services/modalService';
+import SetTimeSpend from './SetTimeSpend';
 
-const CommentItem = ({ comment, onCommentDeleted }) => {
+const CommentItem = ({ comment, onCommentDeleted, onTimeUpdated }) => {
     const [spendTime, setSpendTime] = useState(null);
     const [currentComment, setCurrentComment] = useState(comment);
     const [loading, setLoading] = useState(false);
@@ -37,22 +38,37 @@ const CommentItem = ({ comment, onCommentDeleted }) => {
         }
     };
 
-    useEffect(() => {
+    const fetchSpendTime = () => {
         setLoading(true);
         apiClient.get(`/time_spends?comment=${comment.id}&total=1`)
             .then(response => {
                 const totalMinutes = response.data['member'][0];
+                // Сбрасываем время, если оно равно 0, чтобы не отображать "0 ч. 0 мин."
                 if (totalMinutes > 0) {
                     setSpendTime(minutesToHours(totalMinutes));
+                } else {
+                    setSpendTime(null);
                 }
             })
             .catch(err => {
                 console.error(`Не удалось загрузить время для комментария ${comment.id}`, err);
+                setSpendTime(null); // Сбрасываем в случае ошибки
             })
             .finally(() => {
                 setLoading(false);
             });
-    }, [currentComment.id]);
+    };
+
+    // Новый обработчик, который будет передан в SetTimeSpend
+    // Он обновит время комментария и вызовет обновление общего времени
+    const handleTimeSaved = () => {
+        // 1. Вызываем колбэк, который пришел "сверху", чтобы обновить общее время
+        if (onTimeUpdated) {
+            onTimeUpdated();
+        }
+        // 2. Запускаем обновление времени для текущего комментария
+        fetchSpendTime();
+    };
 
     const handleEditSave = async () => {
         try {
@@ -94,6 +110,10 @@ const CommentItem = ({ comment, onCommentDeleted }) => {
         }
     };
 
+    useEffect(() => {
+        fetchSpendTime();
+    }, [comment.id]); // Зависимость только от ID комментария
+
     if (!currentComment) return null;
 
     return (
@@ -105,6 +125,7 @@ const CommentItem = ({ comment, onCommentDeleted }) => {
                     </div>
                     {isAuthor() && (
                         <div className='ms-1'>
+                            <SetTimeSpend commentId={comment.id} onTimeSaved={handleTimeSaved} />
                             <EditSVG
                                 color="#4E4F79"
                                 context="description"
@@ -114,11 +135,15 @@ const CommentItem = ({ comment, onCommentDeleted }) => {
                                 showModal={activeModal === 'comment'}
                                 onHide={() => setActiveModal(null)}
                                 onShow={() => setActiveModal('comment')}
+                                dataTooltip="Редактировать"
+                                dataPlacement="top"
                             />
                             <Button
                                 variant="danger"
                                 className='ms-2'
                                 onClick={handleDeleteComment}
+                                data-tooltip="Удалить"
+                                data-placement="top"
                             >
                                 <i className="bi bi-trash3"></i>
                             </Button>

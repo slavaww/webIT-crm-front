@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import apiClient from "../api/axiosConfig";
 import { minutesToHours } from "../utils/minutesToHours";
 
-const TotalTaskTime = ({ taskId, startTime="2025-01-01" }) => {
+const TotalTaskTime = ({ taskId, startTime="2025-01-01", refreshTrigger }) => {
   const [totalTaskTime, setTotalTaskTime] = useState(0);
 
   useEffect(() => {
@@ -27,7 +27,7 @@ const TotalTaskTime = ({ taskId, startTime="2025-01-01" }) => {
       .catch( (err) => {
         console.error(err);
     });
-  }, [taskId, startTime]);
+  }, [taskId, startTime, refreshTrigger]);
 
   return  <div className="total-time">
             <i className="bi bi-hourglass-split"> </i> 

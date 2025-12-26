@@ -5,8 +5,7 @@ import ImageUploadButton from "./ImageUploadButton";
 import apiClient from "../api/axiosConfig";
 import { useImageUpload } from "../hooks/useImageUpload";
 import CommentItem from "./CommentItem";
-
-const CommentsAll = ({id}) => {
+const CommentsAll = ({id, onTimeUpdated}) => {
     const [comments, setComments] = useState([]);
     const [newComment, setNewComment] = useState("");
     const [error, setError] = useState(null);
@@ -53,7 +52,11 @@ const CommentsAll = ({id}) => {
       <div className="comments-block mt-4">
         <h3 className="mb-4">Комментарии</h3>
         {comments.map((comment) => (
-          <CommentItem key={comment.id} comment={comment} onCommentDeleted={handleCommentDeleted} />
+          <CommentItem
+            key={comment.id}
+            comment={comment}
+            onCommentDeleted={handleCommentDeleted}
+            onTimeUpdated={onTimeUpdated} />
         ))}
         {comments.length === 0 && <p>Нет комментариев.</p>}
 

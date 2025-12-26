@@ -1,28 +1,40 @@
 /* Родительский элемент (ссылка) */
 a[data-tooltip], button[data-tooltip] {
     position: relative; /* Позволяет позиционировать подсказку относительно ссылки */
-    display: inline-block; /* Чтобы позиционирование было корректным */
-    text-decoration: underline;
-    color: blue;
-    cursor: pointer; /* Указывает на интерактивность */
 }
 
 /* Псевдоэлемент ::after для создания подсказки */
 a[data-tooltip]::after, button[data-tooltip]::after {
     content: attr(data-tooltip); /* Получаем текст из атрибута data-tooltip */
     position: absolute; /* Позиционируем подсказку абсолютно */
-    top: 50%;
-    left: 120%;
-    transform: translateY(-50%);
     visibility: hidden; /* Скрываем по умолчанию */
     opacity: 0; /* Скрываем полностью */
     background-color: #333; /* Цвет фона */
     color: #fff; /* Цвет текста */
     padding: 5px 10px; /* Отступы внутри подсказки */
     border-radius: 4px; /* Скругленные углы */
+    z-index: 1000; /* Чтобы подсказка была поверх других элементов */
     white-space: nowrap; /* Не переносить текст по словам */
     pointer-events: none; /* Отключаем события мыши для псевдоэлемента */
     transition: opacity 0.3s; /* Плавное появление */
+}
+
+/* Позиционирование по умолчанию и для data-placement="right" */
+a[data-tooltip]:not([data-placement])::after,
+button[data-tooltip]:not([data-placement])::after,
+a[data-tooltip][data-placement="right"]::after,
+button[data-tooltip][data-placement="right"]::after {
+    top: 50%;
+    left: 120%;
+    transform: translateY(-50%);
+}
+
+/* Позиционирование для data-placement="top" */
+a[data-tooltip][data-placement="top"]::after,
+button[data-tooltip][data-placement="top"]::after {
+    top: -110%;
+    left: 50%;
+    transform: translateX(-50%);
 }
 
 /* Отображение подсказки при наведении на ссылку */
